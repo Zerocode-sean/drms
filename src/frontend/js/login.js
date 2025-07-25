@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // AJAX call to backend
-    fetch("../../backend/api/login.php", {
+    fetch("/src/backend/api/login.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -101,11 +101,11 @@ document.addEventListener("DOMContentLoaded", function () {
         loginForm.reset();
         setTimeout(() => {
           if (data.user && data.user.role === "admin") {
-            window.location.href = "admin.php";
+            window.location.href = "/src/frontend/assets/admin.php";
           } else if (data.user && data.user.role === "driver") {
-            window.location.href = "driver.php";
+            window.location.href = "/src/frontend/assets/driver.php";
           } else {
-            window.location.href = "home.php";
+            window.location.href = "/src/frontend/assets/home.php";
           }
         }, 1200);
       })
