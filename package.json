@@ -1,0 +1,12 @@
+{
+  "name": "drms-php-app",
+  "version": "1.0.0",
+  "description": "DRMS PHP Application for Render deployment",
+  "scripts": {
+    "build": "composer install --no-dev --optimize-autoloader",
+    "start": "php -S 0.0.0.0:$PORT index.php"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

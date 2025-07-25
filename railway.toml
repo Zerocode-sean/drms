@@ -1,0 +1,3 @@
+# Railway configuration for DRMS PHP application
+[deploy]
+startCommand = "php -S 0.0.0.0:$PORT index.php"

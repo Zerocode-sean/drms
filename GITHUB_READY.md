@@ -3,6 +3,7 @@
 ## ✅ **What We Just Accomplished:**
 
 ### **Git Configuration Complete:**
+
 - ✅ **Username:** John Mutua
 - ✅ **Email:** ndindajohnmutua22@gmail.com
 - ✅ **Initial Commit:** DRMS v1.0.0 (174 files, 26,663 lines)
@@ -11,6 +12,7 @@
 ## 🚀 **NEXT STEPS: Push to GitHub**
 
 ### **Step 1: Create GitHub Repository (2 minutes)**
+
 1. Go to [GitHub.com](https://github.com)
 2. Click the **"+"** button → **"New repository"**
 3. Repository details:
@@ -20,6 +22,7 @@
    - **Initialize:** ❌ **Don't** add README, .gitignore, or license (you have them)
 
 ### **Step 2: Connect and Push (1 minute)**
+
 ```bash
 # Add GitHub remote (replace 'yourusername' with your GitHub username)
 git remote add origin https://github.com/yourusername/drms.git
@@ -29,6 +32,7 @@ git push -u origin main
 ```
 
 ### **Example Commands:**
+
 ```bash
 # If your GitHub username is 'johnmutua'
 git remote add origin https://github.com/johnmutua/drms.git
@@ -36,6 +40,7 @@ git push -u origin main
 ```
 
 ## 📊 **Your Project Stats:**
+
 - **🗂️ Total Files:** 174
 - **📝 Lines of Code:** 26,663
 - **🏗️ Architecture:** Full-stack PHP
@@ -45,6 +50,7 @@ git push -u origin main
 ## 🏆 **After GitHub Push - Deploy to Railway:**
 
 ### **Railway Deployment (5 minutes):**
+
 1. Visit [railway.app](https://railway.app)
 2. Sign up with your **GitHub account**
 3. Click **"New Project"** → **"Deploy from GitHub repo"**
@@ -54,6 +60,7 @@ git push -u origin main
 7. **Deploy automatically!** 🚀
 
 ### **Critical Environment Variables:**
+
 ```
 APP_ENV=production
 DB_HOST=(Railway MySQL host)
@@ -64,6 +71,7 @@ BLESSEDTEXT_API_KEY=your_real_api_key
 ```
 
 ## 🎯 **Expected Timeline:**
+
 - **2 minutes:** Create GitHub repo
 - **1 minute:** Push to GitHub
 - **5 minutes:** Deploy to Railway
@@ -71,25 +79,29 @@ BLESSEDTEXT_API_KEY=your_real_api_key
 - **🎉 TOTAL: 10 minutes to go live!**
 
 ## 📈 **Your Achievement:**
+
 You've just completed:
+
 - ✅ **Professional Git workflow**
 - ✅ **Industry-standard project structure**
 - ✅ **Deployment-ready configuration**
 - ✅ **CI/CD pipeline setup**
 - ✅ **Full-stack application development**
 
-This is exactly how professional developers work in the industry! 
+This is exactly how professional developers work in the industry!
 
 ## 🔄 **Future Development Workflow:**
+
 ```bash
 # For adding password reset feature later:
 git checkout -b feature/password-reset
 # ... develop feature
 git add .
-git commit -m "Add password reset functionality"  
+git commit -m "Add password reset functionality"
 git push origin feature/password-reset
 # Create Pull Request → Auto-deploy after merge!
 ```
 
 ---
+
 **🚀 Ready to push to GitHub? Run the git remote and push commands above!**
