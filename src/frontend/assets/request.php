@@ -1390,17 +1390,30 @@ $role = $_SESSION['role'] ?? 'resident';
             submitBtn.textContent = 'Submitting...';
             submitBtn.disabled = true;
             
-            // Submit form with JSON data
+            // Submit form with JSON data and timeout handling
             console.log('📡 Sending request to API...');
-            fetch('../../backend/api/place_request.php', {
+            
+            // Create a timeout promise
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Request timeout')), 10000); // 10 second timeout
+            });
+            
+            // Create the fetch promise
+            const fetchPromise = fetch('../../backend/api/place_request.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(requestData)
-            })
+            });
+            
+            // Race between fetch and timeout
+            Promise.race([fetchPromise, timeoutPromise])
             .then(response => {
                 console.log('📨 API Response received:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 return response.json();
             })
             .then(data => {
@@ -1410,12 +1423,16 @@ $role = $_SESSION['role'] ?? 'resident';
                     this.reset();
                     clearLocation();
                 } else {
-                    showMessage('❌ Error: ' + (data.message || 'Failed to submit request'), 'error');
+                    showMessage('❌ Error: ' + (data.error || data.message || 'Failed to submit request'), 'error');
                 }
             })
             .catch(error => {
-                console.error('💥 Network error:', error);
-                showMessage('❌ Network error. Please try again.', 'error');
+                console.error('💥 Request error:', error);
+                if (error.message === 'Request timeout') {
+                    showMessage('❌ Request timed out. Please check your connection and try again.', 'error');
+                } else {
+                    showMessage('❌ Network error. Please try again.', 'error');
+                }
             })
             .finally(() => {
                 submitBtn.textContent = originalText;

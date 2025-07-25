@@ -215,25 +215,40 @@ document.addEventListener("DOMContentLoaded", () => {
         address_details: ""
       };
       
-      // Submit to backend
-      fetch("../../backend/api/place_request.php", {
+      // Submit to backend with timeout handling
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), 8000); // 8 second timeout
+      });
+      
+      const fetchPromise = fetch("../../backend/api/place_request.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(requestData)
+      });
+      
+      Promise.race([fetchPromise, timeoutPromise])
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
       })
-      .then(res => res.json())
       .then(data => {
         if (data.success) {
           alert(`Request Submitted Successfully!\nType: ${requestType}\nDate: ${requestDate}\nRequest ID: ${data.request_id}`);
           quickRequestForm.reset();
         } else {
-          alert("Error submitting request: " + (data.error || "Unknown error"));
+          alert("Error submitting request: " + (data.error || data.message || "Unknown error"));
         }
       })
       .catch(error => {
         console.error("Quick request error:", error);
-        alert("Error submitting request. Please try again.");
+        if (error.message === 'Request timeout') {
+          alert("Request timed out. Please check your connection and try again.");
+        } else {
+          alert("Error submitting request. Please try again.");
+        }
       });
     });
   }

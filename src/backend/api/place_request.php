@@ -1,32 +1,30 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
+// Optimized request submission with timeout handling
 header('Content-Type: application/json');
+header('Cache-Control: no-cache, no-store, must-revalidate');
 
-// Debug: Check if db_config.php exists at the expected path
-$file = __DIR__ . '/../config/db_config.php';
-if (!file_exists($file)) {
-    die(json_encode(['success' => false, 'error' => 'db_config.php not found at: ' . $file]));
-}
-require_once $file;
-if (!defined('DB_HOST')) {
-    die(json_encode(['success' => false, 'error' => 'DB_HOST is not defined after including: ' . $file]));
-}
+// Set execution timeout and memory limits
+set_time_limit(15); // Reduced to 15 seconds max
+ini_set('memory_limit', '64M');
 
-require_once __DIR__ . '/../models/notification.php';
+// Use optimized session and database handling
+require_once __DIR__ . '/../config/session.php';
+require_once __DIR__ . '/../config/db_config.php';
 
-session_start();
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
 
 try {
-    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    if ($conn->connect_error) throw new Exception($conn->connect_error);
+    // Use the existing optimized connection from db_config.php
+    if (!isset($conn) || $conn->connect_error) {
+        throw new Exception('Database connection failed');
+    }
+    
+    // Set connection timeout for faster failure
+    $conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, 5);
     
     $data = json_decode(file_get_contents('php://input'), true);
     if (!$data) throw new Exception('Invalid JSON');
@@ -46,7 +44,7 @@ try {
         throw new Exception('Missing required fields: waste_type and preferred_date are required');
     }
     
-    // Update user's phone number if provided
+    // Update user's phone number if provided (use consistent connection variable)
     if (!empty($phone)) {
         $updateUserSql = "UPDATE users SET phone = ? WHERE id = ?";
         $updateStmt = $conn->prepare($updateUserSql);
@@ -59,8 +57,8 @@ try {
     
     $document = 'Waste collection request';
     
-    // Updated SQL with address_details column
-    $sql = "INSERT INTO requests1 (user_id, document, location, waste_type, preferred_date, notes, status, urgency, resolved_address, address_details) VALUES (?, ?, ?, ?, ?, ?, 'Pending', ?, ?, ?)";
+    // Use correct table name: requests (not requests1)  
+    $sql = "INSERT INTO requests (user_id, document, location, waste_type, preferred_date, notes, status, urgency, resolved_address, address_details) VALUES (?, ?, ?, ?, ?, ?, 'Pending', ?, ?, ?)";
     
     $stmt = $conn->prepare($sql);
     if (!$stmt) throw new Exception('Prepare failed: ' . $conn->error);
@@ -70,10 +68,14 @@ try {
     if ($stmt->execute()) {
         $request_id = $conn->insert_id;
         
-        // Notify all admins
-        $adminResult = $conn->query("SELECT id FROM users WHERE role='admin'");
-        while ($admin = $adminResult->fetch_assoc()) {
-            add_notification($conn, $user_id, $admin['id'], "A new waste collection request (ID: $request_id) has been submitted.");
+        // Optimized notification handling - use a simple insert without complex loops
+        $notificationSql = "INSERT INTO notifications (user_id, recipient_id, message, type, is_read, created_at) SELECT ?, id, ?, 'request', 0, NOW() FROM users WHERE role='admin'";
+        $notifyStmt = $conn->prepare($notificationSql);
+        if ($notifyStmt) {
+            $notifyMessage = "A new waste collection request (ID: $request_id) has been submitted.";
+            $notifyStmt->bind_param('is', $user_id, $notifyMessage);
+            $notifyStmt->execute();
+            $notifyStmt->close();
         }
         
         echo json_encode([
