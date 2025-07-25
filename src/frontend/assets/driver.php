@@ -1,7 +1,7 @@
 <?php
 // Include performance optimizations
-require_once '../../backend/config/performance.php';
-require_once '../../backend/config/session.php';
+require_once __DIR__ . '/../../backend/config/performance.php';
+require_once __DIR__ . '/../../backend/config/session.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'driver') {
     header('Location: login.php');

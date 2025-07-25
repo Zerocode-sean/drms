@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../backend/config/session.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['logged_in']) || !$_SESSION['logged_in']) {
