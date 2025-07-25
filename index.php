@@ -1,9 +1,22 @@
 <?php
 // DRMS Application Entry Point
-// Redirect to the main application
+// Production-ready entry point for cloud deployment
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Set default timezone
+date_default_timezone_set('Africa/Nairobi');
+
+// Handle health check requests
+if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI'] === '/health') {
+    http_response_code(200);
+    header('Content-Type: application/json');
+    echo json_encode(['status' => 'healthy', 'timestamp' => date('Y-m-d H:i:s')]);
+    exit;
+}
 // Check if user is accessing the root
-if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/index.php') {
+if (!isset($_SERVER['REQUEST_URI']) || $_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/index.php') {
     // Redirect to the main application
     header('Location: /src/frontend/assets/home.php');
     exit;

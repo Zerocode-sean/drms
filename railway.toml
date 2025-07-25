@@ -1,6 +1,0 @@
-# Railway configuration for DRMS PHP application
-[deploy]
-startCommand = "php -S 0.0.0.0:$PORT"
-
-[variables]
-PHP_VERSION = "8.1"
