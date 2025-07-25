@@ -24,12 +24,10 @@ if (!ob_get_level() && extension_loaded('zlib') && !headers_sent()) {
     }
 }
 
-// Optimize session handling
-if (session_status() === PHP_SESSION_NONE) {
-    ini_set('session.cookie_lifetime', 3600); // 1 hour
-    ini_set('session.gc_maxlifetime', 3600);
-    ini_set('session.cookie_httponly', 1);
-    ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
-    session_start();
-}
+// Set session configuration but don't start session automatically
+// Sessions will be started by individual files as needed
+ini_set('session.cookie_lifetime', 3600); // 1 hour
+ini_set('session.gc_maxlifetime', 3600);
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
 ?>
