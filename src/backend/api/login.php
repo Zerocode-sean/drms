@@ -1,12 +1,12 @@
 <?php
-session_start();
+require_once __DIR__ . '/../config/session.php';
 header('Content-Type: application/json');
 
 // If user is already logged in, destroy session to allow new login
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']) {
     session_unset();
     session_destroy();
-    session_start();
+    ensureSession();
 }
 
 // If user is already logged in, redirect them
