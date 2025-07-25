@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Nairobi Neighborhood Clusters Visualization</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+      #map {
+        height: 90vh;
+        width: 100vw;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Nairobi Neighborhood Clusters Visualization</h2>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+      // Set this to the date you seeded (tomorrow's date)
+      const date = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+      const apiUrl = `/project/src/backend/api/generate_schedule.php?date=${date}`;
+
+      // Distinct colors for clusters
+      const colors = [
+        "red",
+        "blue",
+        "green",
+        "orange",
+        "purple",
+        "brown",
+        "magenta",
+        "cyan",
+        "black",
+      ];
+
+      // Center map on Nairobi
+      const map = L.map("map").setView([-1.2921, 36.8219], 12);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: "© OpenStreetMap contributors",
+      }).addTo(map);
+
+      fetch(apiUrl)
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.schedule || !data.schedule.assignments) {
+            alert("No cluster data found!");
+            return;
+          }
+          let clusterIdx = 0;
+          data.schedule.assignments.forEach((assignment, idx) => {
+            // Each assignment is a cluster/route for a driver
+            const color = colors[clusterIdx % colors.length];
+            if (assignment.route && assignment.route.length > 0) {
+              assignment.route.forEach((req, i) => {
+                if (req.latitude && req.longitude) {
+                  L.circleMarker([req.latitude, req.longitude], {
+                    radius: 10,
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 0.7,
+                  })
+                    .addTo(map)
+                    .bindPopup(
+                      `<b>${req.location || req.address}</b><br>Cluster: ${
+                        clusterIdx + 1
+                      }<br>User: ${req.username || ""}`
+                    );
+                }
+              });
+              // Optionally, draw lines between points in the cluster
+              const latlngs = assignment.route.map((r) => [
+                r.latitude,
+                r.longitude,
+              ]);
+              L.polyline(latlngs, {
+                color: color,
+                weight: 3,
+                opacity: 0.5,
+              }).addTo(map);
+              clusterIdx++;
+            }
+          });
+        })
+        .catch((err) => {
+          alert("Failed to fetch cluster data: " + err);
+        });
+    </script>
+  </body>
+</html>

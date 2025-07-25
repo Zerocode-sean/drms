@@ -1,0 +1,10 @@
+@startuml Resident_Use_Case_Diagram
+actor Resident
+Resident --> (Submit Waste Collection Request)
+Resident --> (View Request Status and History)
+Resident --> (View Billing and Payment History)
+Resident --> (Access Sustainability Metrics)
+Resident --> (Receive Notifications)
+(Submit Waste Collection Request) .> (Validate Input) : include
+(Receive Notifications) .> (View Request Status and History) : extend
+@enduml

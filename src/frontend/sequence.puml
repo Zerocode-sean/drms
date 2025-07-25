@@ -1,0 +1,25 @@
+@startuml Waste_Collection_Request_Sequence
+actor Resident
+participant "System Interface" as UI
+participant "Request Validator" as Validator
+participant Database
+participant Administrator
+participant Driver
+participant "Notification System" as Notifier
+
+Resident -> UI: Submit Request (waste type, location, date)
+UI -> Validator: Validate Request
+alt Invalid Input
+    Validator -> UI: Error Message
+    UI -> Resident: Display Error
+else Valid Input
+    Validator -> Database: Save Request
+    Database --> Validator: Confirm Storage
+    Validator -> Administrator: Notify New Request
+    Administrator -> Driver: Assign Task
+    Driver -> UI: View Task
+    Validator -> Notifier: Send Confirmation
+    Notifier -> Resident: SMS Confirmation
+end
+
+@enduml

@@ -1,0 +1,32 @@
+@startuml Resident_Use_Case_Diagram
+actor Resident
+Resident --> (Submit Waste Collection Request)
+Resident --> (View Request Status and History)
+Resident --> (View Billing and Payment History)
+Resident --> (Access Sustainability Metrics)
+Resident --> (Receive Notifications)
+(Submit Waste Collection Request) .> (Validate Input) : include
+(Receive Notifications) .> (View Request Status and History) : extend
+@enduml
+
+@startuml Administrator_Use_Case_Diagram
+actor Administrator
+Administrator --> (Manage User Accounts)
+Administrator --> (Schedule Collection Routes)
+Administrator --> (Assign Drivers to Tasks)
+Administrator --> (Monitor System Performance)
+Administrator --> (Generate Comprehensive Reports)
+(Schedule Collection Routes) .> (Assign Drivers to Tasks) : include
+(Generate Comprehensive Reports) .> (Monitor System Performance) : extend
+@enduml
+
+@startuml Driver_Use_Case_Diagram
+actor Driver
+Driver --> (View Assigned Collection Tasks)
+Driver --> (Update Request Status)
+Driver --> (Access User Contact Information)
+Driver --> (Send Notifications)
+Driver --> (Use Route Navigation Support)
+(Update Request Status) .> (Send Notifications) : include
+(Use Route Navigation Support) .> (View Assigned Collection Tasks) : extend
+@enduml

@@ -1,0 +1,10 @@
+@startuml Administrator_Use_Case_Diagram
+actor Administrator
+Administrator --> (Manage User Accounts)
+Administrator --> (Schedule Collection Routes)
+Administrator --> (Assign Drivers to Tasks)
+Administrator --> (Monitor System Performance)
+Administrator --> (Generate Comprehensive Reports)
+(Schedule Collection Routes) .> (Assign Drivers to Tasks) : include
+(Generate Comprehensive Reports) .> (Monitor System Performance) : extend
+@enduml

@@ -1,0 +1,10 @@
+@startuml Driver_Use_Case_Diagram
+actor Driver
+Driver --> (View Assigned Collection Tasks)
+Driver --> (Update Request Status)
+Driver --> (Access User Contact Information)
+Driver --> (Send Notifications)
+Driver --> (Use Route Navigation Support)
+(Update Request Status) .> (Send Notifications) : include
+(Use Route Navigation Support) .> (View Assigned Collection Tasks) : extend
+@enduml

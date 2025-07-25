@@ -1,0 +1,53 @@
+# Logs
+*.log
+logs/
+
+# Environment variables (CRITICAL - Contains API keys and passwords)
+.env
+.env.local
+.env.production
+
+# Database dumps
+*.sql
+database.sql
+database_backup.sql
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+cache/
+
+# User uploads
+uploads/
+images/user_uploads/
+
+# Configuration files with secrets
+src/backend/config/twilio_config.php
+src/backend/config/production_config.php
+
+# Payment integration logs and debug files
+src/backend/api/mpesa_callback_log.txt
+src/backend/api/payment_debug.log
+src/backend/api/daraja_logs/
+
+# Backup files
+*.bak
+*.backup
+
+# Local testing files
+test_*.php
+debug_*.php
+
+# Sensitive callback URLs and webhook files
+**/ngrok_*
+**/webhook_*

@@ -1,0 +1,94 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f4f8fb;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    color: #2176ae;
+    margin-top: 30px;
+}
+
+#tasks-container {
+    max-width: 1000px;
+    margin: 30px auto 0 auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(33, 118, 174, 0.08);
+    padding: 30px 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table th, table td {
+    padding: 12px 10px;
+    text-align: left;
+}
+
+table th {
+    background: #2176ae;
+    color: #fff;
+    font-weight: 600;
+}
+
+table tr:nth-child(even) {
+    background: #f0f6fa;
+}
+
+table tr:hover {
+    background: #e3f0fa;
+}
+
+select {
+    padding: 6px 10px;
+    border-radius: 5px;
+    border: 1px solid #bcdff1;
+    background: #f8fbfd;
+    color: #2176ae;
+    font-size: 1em;
+}
+
+button {
+    background: #38b6ff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 7px 16px;
+    margin-right: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: #2176ae;
+}
+
+#map {
+    max-width: 1000px;
+    margin: 0 auto 30px auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(33, 118, 174, 0.08);
+    border: 1px solid #bcdff1;
+}
+
+@media (max-width: 700px) {
+    #tasks-container, #map {
+        max-width: 98vw;
+        padding: 10px 2vw;
+    }
+    table th, table td {
+        padding: 8px 4px;
+        font-size: 0.95em;
+    }
+    button {
+        padding: 6px 10px;
+        font-size: 0.95em;
+    }
+} 

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notification Test - DRMS</title>
+    <link rel="stylesheet" href="src/frontend/css/dr if (count > 200) {
+    charCount.parentElement.classList.add("over-limit"); } else {
+    charCount.parentElement.classList.remove("over-limit"); }les.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem;
+      }
+
+      .test-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .test-button {
+        background: #4caf50;
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        margin: 1rem;
+        transition: all 0.2s ease;
+      }
+
+      .test-button:hover {
+        background: #45a049;
+        transform: translateY(-2px);
+      }
+
+      .console-output {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 1rem;
+        margin-top: 1rem;
+        font-family: monospace;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1><i class="fas fa-bug"></i> Notification Modal Debug</h1>
+
+      <div class="test-section">
+        <h3>Test Notification Modal</h3>
+        <button class="test-button" onclick="testModal()">
+          <i class="fas fa-bell"></i> Test Open Modal
+        </button>
+        <button class="test-button" onclick="testElementsExist()">
+          <i class="fas fa-search"></i> Check Elements
+        </button>
+        <button class="test-button" onclick="clearConsole()">
+          <i class="fas fa-eraser"></i> Clear Log
+        </button>
+      </div>
+
+      <div id="consoleOutput" class="console-output">Ready for testing...</div>
+    </div>
+
+    <!-- Include the modal HTML from driver.php -->
+    <div id="notificationModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fas fa-comment-dots"></i> Send Notification</h3>
+          <span class="close-modal" onclick="closeNotificationModal()"
+            >&times;</span
+          >
+        </div>
+        <div class="modal-body">
+          <div class="notification-info">
+            <div class="user-info">
+              <h4 id="modalUserName">Test User</h4>
+              <p>
+                <i class="fas fa-phone"></i>
+                <span id="modalUserPhone">+254701234567</span>
+              </p>
+              <p>
+                <i class="fas fa-map-marker-alt"></i>
+                <span id="modalUserAddress">Test Address</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="message-templates">
+            <h4><i class="fas fa-templates"></i> Quick Templates</h4>
+            <div class="template-buttons">
+              <button class="template-btn" onclick="selectTemplate('missed')">
+                <i class="fas fa-clock"></i> Missed Collection
+              </button>
+              <button class="template-btn" onclick="selectTemplate('custom')">
+                <i class="fas fa-edit"></i> Custom Message
+              </button>
+            </div>
+          </div>
+
+          <div class="message-composer">
+            <label for="notificationMessage"
+              ><i class="fas fa-envelope"></i> Message</label
+            >
+            <textarea
+              id="notificationMessage"
+              rows="5"
+              placeholder="Test message..."
+            ></textarea>
+            <div class="character-count">
+              <span id="charCount">0</span>/200 characters
+            </div>
+          </div>
+
+          <div class="notification-options">
+            <div class="option-group">
+              <label>
+                <input type="checkbox" id="sendSMS" checked />
+                <i class="fas fa-sms"></i> Send SMS
+              </label>
+              <label>
+                <input type="checkbox" id="sendInApp" checked />
+                <i class="fas fa-bell"></i> In-App Notification
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeNotificationModal()">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button class="btn-primary" onclick="testSendNotification()">
+            <i class="fas fa-paper-plane"></i> Test Send
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Copy the essential functions from driver.js
+      let currentTaskData = {
+        requestId: 999,
+        userPhone: "+254701234567",
+        userName: "Test User",
+        address: "Test Address",
+      };
+
+      function log(message) {
+        const output = document.getElementById("consoleOutput");
+        const timestamp = new Date().toLocaleTimeString();
+        output.textContent += `[${timestamp}] ${message}\n`;
+        output.scrollTop = output.scrollHeight;
+      }
+
+      function testModal() {
+        log("Testing modal opening...");
+        openNotificationModal(
+          999,
+          "+254701234567",
+          "Test User",
+          "Test Address, Nairobi"
+        );
+      }
+
+      function testElementsExist() {
+        log("Checking if all elements exist...");
+        const elements = [
+          "notificationModal",
+          "modalUserName",
+          "modalUserPhone",
+          "modalUserAddress",
+          "notificationMessage",
+          "charCount",
+          "sendSMS",
+          "sendInApp",
+        ];
+
+        elements.forEach((id) => {
+          const element = document.getElementById(id);
+          log(`${id}: ${element ? "✅ Found" : "❌ Not found"}`);
+        });
+      }
+
+      function clearConsole() {
+        document.getElementById("consoleOutput").textContent =
+          "Console cleared...\n";
+      }
+
+      function openNotificationModal(requestId, userPhone, userName, address) {
+        log(`Opening modal for: ${userName} (${userPhone})`);
+
+        currentTaskData = { requestId, userPhone, userName, address };
+
+        const modal = document.getElementById("notificationModal");
+        if (!modal) {
+          log("❌ Modal not found!");
+          return;
+        }
+
+        // Populate modal
+        const userNameEl = document.getElementById("modalUserName");
+        const userPhoneEl = document.getElementById("modalUserPhone");
+        const userAddressEl = document.getElementById("modalUserAddress");
+
+        if (userNameEl) userNameEl.textContent = userName;
+        if (userPhoneEl) userPhoneEl.textContent = userPhone;
+        if (userAddressEl) userAddressEl.textContent = address;
+
+        const messageTextarea = document.getElementById("notificationMessage");
+        if (messageTextarea) {
+          messageTextarea.value = "";
+          updateCharacterCount();
+        }
+
+        modal.style.display = "block";
+        document.body.style.overflow = "hidden";
+        log("✅ Modal opened successfully!");
+      }
+
+      function closeNotificationModal() {
+        const modal = document.getElementById("notificationModal");
+        if (modal) {
+          modal.style.display = "none";
+          document.body.style.overflow = "auto";
+          log("Modal closed");
+        }
+      }
+
+      function selectTemplate(type) {
+        log(`Template selected: ${type}`);
+
+        const templates = {
+          missed: `Dear Test User,\n\nWe apologize, but we missed your scheduled waste collection at Test Address today. We will reschedule your collection for the next available slot.\n\nThank you for your patience.\n- DRMS Team`,
+          custom: "",
+        };
+
+        const messageTextarea = document.getElementById("notificationMessage");
+        if (messageTextarea) {
+          messageTextarea.value = templates[type];
+          updateCharacterCount();
+          log(`Template applied: ${templates[type].length} characters`);
+        }
+      }
+
+      function updateCharacterCount() {
+        const textarea = document.getElementById("notificationMessage");
+        const charCount = document.getElementById("charCount");
+
+        if (!textarea || !charCount) {
+          log("❌ Character count elements not found");
+          return;
+        }
+
+        const count = textarea.value.length;
+        charCount.textContent = count;
+
+        if (count > 160) {
+          charCount.parentElement.classList.add("over-limit");
+        } else {
+          charCount.parentElement.classList.remove("over-limit");
+        }
+      }
+
+      function testSendNotification() {
+        log("Testing notification send...");
+        const message = document.getElementById("notificationMessage").value;
+        const sendSMS = document.getElementById("sendSMS").checked;
+        const sendInApp = document.getElementById("sendInApp").checked;
+
+        log(`Message: "${message}"`);
+        log(`Send SMS: ${sendSMS}`);
+        log(`Send In-App: ${sendInApp}`);
+
+        if (!message) {
+          log("❌ No message entered");
+          alert("Please enter a message");
+          return;
+        }
+
+        log("✅ Test notification would be sent successfully!");
+        alert(
+          "✅ Test notification ready to send!\n\nMessage: " +
+            message.substring(0, 50) +
+            "...\nSMS: " +
+            sendSMS +
+            "\nIn-App: " +
+            sendInApp
+        );
+      }
+
+      // Add event listener for character counting
+      document.addEventListener("DOMContentLoaded", function () {
+        const messageTextarea = document.getElementById("notificationMessage");
+        if (messageTextarea) {
+          messageTextarea.addEventListener("input", updateCharacterCount);
+          log("✅ Character counter initialized");
+        }
+      });
+
+      // Initialize
+      log("Notification test page loaded");
+      log('Click "Test Open Modal" to test the notification system');
+    </script>
+  </body>
+</html>

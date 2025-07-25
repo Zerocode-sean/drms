@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DRMS - Twilio SMS Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .status {
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 10px 5px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+      }
+      .code {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        margin: 10px 0;
+      }
+      .spinner {
+        display: none;
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🚀 DRMS Twilio SMS Integration Test</h1>
+
+      <div id="status-display"></div>
+
+      <h3>📋 Quick Setup Checklist:</h3>
+      <ul>
+        <li>✅ Twilio account created</li>
+        <li>❓ Credentials configured in <code>twilio_config.php</code></li>
+        <li>❓ Phone number verified in Twilio Console</li>
+        <li>❓ SMS logging table created</li>
+      </ul>
+
+      <h3>🧪 Test Actions:</h3>
+      <button onclick="checkConfiguration()">Check Configuration</button>
+      <button onclick="sendTestSMS()" id="sendBtn">Send Test SMS</button>
+      <button onclick="viewSMSLogs()">View SMS Logs</button>
+      <span class="spinner" id="spinner">⏳ Processing...</span>
+
+      <div id="results"></div>
+
+      <h3>📝 Configuration Instructions:</h3>
+      <div class="info">
+        <p>
+          <strong>Step 1:</strong> Go to
+          <a href="https://console.twilio.com" target="_blank"
+            >Twilio Console</a
+          >
+        </p>
+        <p>
+          <strong>Step 2:</strong> Copy your credentials and update
+          <code>src/backend/config/twilio_config.php</code>:
+        </p>
+        <div class="code">
+          define('TWILIO_ACCOUNT_SID', 'AC1234567890abcdef...');<br />
+          define('TWILIO_AUTH_TOKEN', 'your_auth_token_here');<br />
+          define('TWILIO_PHONE_NUMBER', '+1234567890');
+        </div>
+        <p>
+          <strong>Step 3:</strong> Verify your phone number in Twilio Console
+          (for trial accounts)
+        </p>
+      </div>
+
+      <h3>📞 Demo Scenarios:</h3>
+      <div class="info">
+        <ul>
+          <li><strong>Request Approved:</strong> Automatic SMS to user</li>
+          <li><strong>Driver Assigned:</strong> SMS with driver details</li>
+          <li><strong>Collection Complete:</strong> Confirmation SMS</li>
+          <li><strong>Bulk Notifications:</strong> Admin broadcasts</li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      function showSpinner(show = true) {
+        document.getElementById("spinner").style.display = show
+          ? "inline"
+          : "none";
+        document.getElementById("sendBtn").disabled = show;
+      }
+
+      function displayResult(data, type = "info") {
+        const resultsDiv = document.getElementById("results");
+        const statusDiv = document.createElement("div");
+        statusDiv.className = `status ${type}`;
+        statusDiv.innerHTML = `
+                <strong>${type.toUpperCase()}:</strong> ${
+          data.message || JSON.stringify(data, null, 2)
+        }
+                ${
+                  data.details
+                    ? "<pre>" + JSON.stringify(data.details, null, 2) + "</pre>"
+                    : ""
+                }
+            `;
+        resultsDiv.appendChild(statusDiv);
+        resultsDiv.scrollTop = resultsDiv.scrollHeight;
+      }
+
+      async function checkConfiguration() {
+        showSpinner(true);
+        try {
+          const response = await fetch("/project/src/backend/api/test_sms.php");
+          const data = await response.json();
+
+          if (data.status === "ready") {
+            displayResult(data, "success");
+          } else {
+            displayResult(data, "error");
+          }
+        } catch (error) {
+          displayResult(
+            { message: "Error checking configuration: " + error.message },
+            "error"
+          );
+        }
+        showSpinner(false);
+      }
+
+      async function sendTestSMS() {
+        if (!confirm("This will send a real SMS. Are you sure?")) return;
+
+        showSpinner(true);
+        try {
+          const response = await fetch(
+            "/project/src/backend/api/test_sms.php?send=true"
+          );
+          const data = await response.json();
+
+          if (data.status === "success") {
+            displayResult(data, "success");
+          } else {
+            displayResult(data, "error");
+          }
+        } catch (error) {
+          displayResult(
+            { message: "Error sending SMS: " + error.message },
+            "error"
+          );
+        }
+        showSpinner(false);
+      }
+
+      async function viewSMSLogs() {
+        showSpinner(true);
+        try {
+          // This would need a separate API endpoint
+          displayResult(
+            {
+              message:
+                "SMS logs feature - create get_sms_logs.php API endpoint",
+            },
+            "info"
+          );
+        } catch (error) {
+          displayResult(
+            { message: "Error fetching logs: " + error.message },
+            "error"
+          );
+        }
+        showSpinner(false);
+      }
+
+      // Auto-check configuration on page load
+      document.addEventListener("DOMContentLoaded", checkConfiguration);
+    </script>
+  </body>
+</html>
