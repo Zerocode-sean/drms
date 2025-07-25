@@ -1,0 +1,31 @@
+# Render.com deployment configuration
+version: 2
+services:
+  - type: web
+    name: drms-app
+    runtime: php
+    plan: free
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php -S 0.0.0.0:$PORT index.php
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_HOST
+        sync: false
+      - key: DATABASE_NAME
+        sync: false
+      - key: DATABASE_USER
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: BLESSEDTEXT_USERNAME
+        sync: false
+      - key: BLESSEDTEXT_PASSWORD
+        sync: false
+      - key: MPESA_CONSUMER_KEY
+        sync: false
+      - key: MPESA_CONSUMER_SECRET
+        sync: false
+      - key: MPESA_PASSKEY
+        sync: false
+      - key: MPESA_SHORTCODE
+        sync: false
