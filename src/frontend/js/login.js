@@ -83,8 +83,13 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    // Detect environment and set appropriate API path
+    const isLocalhost = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    const basePath = isLocalhost ? '/project' : '';
+    const apiPath = basePath + '/src/backend/api/login.php';
+
     // AJAX call to backend
-    fetch("/src/backend/api/login.php", {
+    fetch(apiPath, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -101,11 +106,11 @@ document.addEventListener("DOMContentLoaded", function () {
         loginForm.reset();
         setTimeout(() => {
           if (data.user && data.user.role === "admin") {
-            window.location.href = "/src/frontend/assets/admin.php";
+            window.location.href = basePath + "/src/frontend/assets/admin.php";
           } else if (data.user && data.user.role === "driver") {
-            window.location.href = "/src/frontend/assets/driver.php";
+            window.location.href = basePath + "/src/frontend/assets/driver.php";
           } else {
-            window.location.href = "/src/frontend/assets/home.php";
+            window.location.href = basePath + "/src/frontend/assets/home.php";
           }
         }, 1200);
       })
