@@ -1,33 +1,85 @@
 <?php
-// Performance optimizations for DRMS
-// Add to the top of critical files
+// Enhanced performance optimizations for DRMS
+// Comprehensive caching and performance improvements
 
-// Enable output buffering
+// Enable output buffering with compression
 if (!ob_get_level()) {
     ob_start();
 }
 
-// Set cache headers for static content
-$request_uri = $_SERVER['REQUEST_URI'] ?? '';
-$extension = pathinfo($request_uri, PATHINFO_EXTENSION);
-
-// Cache static assets
-if (in_array($extension, ['css', 'js', 'png', 'jpg', 'jpeg', 'gif', 'ico', 'woff', 'woff2'])) {
-    header('Cache-Control: public, max-age=31536000'); // 1 year
-    header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 31536000) . ' GMT');
-}
-
-// Enable gzip compression
-if (!ob_get_level() && extension_loaded('zlib') && !headers_sent()) {
+// Advanced gzip compression
+if (!headers_sent() && extension_loaded('zlib')) {
     if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false) {
         ob_start('ob_gzhandler');
     }
 }
 
-// Set session configuration but don't start session automatically
-// Sessions will be started by individual files as needed
-ini_set('session.cookie_lifetime', 3600); // 1 hour
-ini_set('session.gc_maxlifetime', 3600);
+// Enhanced cache headers based on content type
+$request_uri = $_SERVER['REQUEST_URI'] ?? '';
+$extension = pathinfo($request_uri, PATHINFO_EXTENSION);
+
+// Long-term caching for static assets
+if (in_array($extension, ['css', 'js', 'png', 'jpg', 'jpeg', 'gif', 'ico', 'woff', 'woff2', 'svg', 'webp'])) {
+    header('Cache-Control: public, max-age=31536000, immutable'); // 1 year with immutable
+    header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 31536000) . ' GMT');
+    header('Pragma: public');
+    
+    // Add ETag for better cache validation
+    $etag = md5_file($_SERVER['SCRIPT_FILENAME'] ?? '');
+    header('ETag: "' . $etag . '"');
+    
+    // Check if client has cached version
+    if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] === '"' . $etag . '"') {
+        http_response_code(304);
+        exit;
+    }
+}
+
+// Medium-term caching for API responses
+if (strpos($request_uri, '/api/') !== false) {
+    header('Cache-Control: private, max-age=300'); // 5 minutes for API
+    header('Vary: Accept-Encoding');
+}
+
+// Short-term caching for dynamic pages
+if (in_array($extension, ['php', 'html']) || empty($extension)) {
+    header('Cache-Control: private, max-age=60'); // 1 minute for pages
+    header('Vary: Accept-Encoding, Cookie');
+}
+
+// Security headers
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('X-XSS-Protection: 1; mode=block');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+
+// Performance optimizations
+ini_set('memory_limit', '256M');
+ini_set('max_execution_time', '30');
+
+// Session optimization
+ini_set('session.cookie_lifetime', 7200); // 2 hours
+ini_set('session.gc_maxlifetime', 7200);
+ini_set('session.gc_probability', 1);
+ini_set('session.gc_divisor', 100);
 ini_set('session.cookie_httponly', 1);
 ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
+ini_set('session.cookie_samesite', 'Lax');
+
+// Opcache optimization (if available)
+if (function_exists('opcache_get_status')) {
+    ini_set('opcache.enable', 1);
+    ini_set('opcache.memory_consumption', 128);
+    ini_set('opcache.max_accelerated_files', 4000);
+    ini_set('opcache.revalidate_freq', 60);
+    ini_set('opcache.fast_shutdown', 1);
+}
+
+// Auto cleanup cache periodically (1% chance)
+if (mt_rand(1, 100) === 1) {
+    if (file_exists(__DIR__ . '/cache.php')) {
+        require_once __DIR__ . '/cache.php';
+        cleanup_expired_cache();
+    }
+}
 ?>

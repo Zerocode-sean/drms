@@ -1,15 +1,16 @@
 <?php
-// Optimized request submission with timeout handling
+// Optimized request submission with timeout handling and caching
+require_once __DIR__ . '/../config/performance.php';
+require_once __DIR__ . '/../config/session.php';
+require_once __DIR__ . '/../config/db_config.php';
+require_once __DIR__ . '/../config/cached_api.php';
+
 header('Content-Type: application/json');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
 // Set execution timeout and memory limits
 set_time_limit(15); // Reduced to 15 seconds max
 ini_set('memory_limit', '64M');
-
-// Use optimized session and database handling
-require_once __DIR__ . '/../config/session.php';
-require_once __DIR__ . '/../config/db_config.php';
 
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
@@ -77,6 +78,9 @@ try {
             $notifyStmt->execute();
             $notifyStmt->close();
         }
+        
+        // Invalidate relevant caches
+        invalidate_request_cache($user_id);
         
         echo json_encode([
             'success' => true, 

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Management - DRMS</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .card h2 { margin-top: 0; color: #333; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .stat-item { background: #f8f9fa; padding: 15px; border-radius: 6px; text-align: center; }
+        .stat-value { font-size: 2em; font-weight: bold; color: #007bff; }
+        .stat-label { color: #666; margin-top: 5px; }
+        .actions { margin: 20px 0; }
+        .btn { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #0056b3; }
+        .btn.danger { background: #dc3545; }
+        .btn.danger:hover { background: #c82333; }
+        .btn.success { background: #28a745; }
+        .btn.success:hover { background: #218838; }
+        .log { background: #f8f9fa; padding: 15px; border-radius: 6px; margin: 10px 0; border-left: 4px solid #007bff; }
+        .error { border-left-color: #dc3545; }
+        .success { border-left-color: #28a745; }
+        .loading { text-align: center; padding: 20px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 DRMS Cache Management</h1>
+        
+        <!-- Backend Cache Stats -->
+        <div class="card">
+            <h2>📊 Backend Cache Statistics</h2>
+            <div id="backend-stats" class="loading">Loading backend cache stats...</div>
+            <div class="actions">
+                <button class="btn" onclick="refreshBackendStats()">🔄 Refresh Stats</button>
+                <button class="btn success" onclick="warmupCache()">🔥 Warm Up Cache</button>
+                <button class="btn danger" onclick="clearBackendCache()">🗑️ Clear All Cache</button>
+                <button class="btn danger" onclick="clearBackendCache('api')">Clear API Cache</button>
+                <button class="btn danger" onclick="clearBackendCache('user_data')">Clear User Cache</button>
+            </div>
+        </div>
+        
+        <!-- Frontend Cache Stats -->
+        <div class="card">
+            <h2>💾 Frontend Cache Statistics</h2>
+            <div id="frontend-stats" class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="frontend-items">-</div>
+                    <div class="stat-label">Cached Items</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="frontend-size">-</div>
+                    <div class="stat-label">Cache Size (KB)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="frontend-expired">-</div>
+                    <div class="stat-label">Expired Items</div>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="refreshFrontendStats()">🔄 Refresh Stats</button>
+                <button class="btn success" onclick="cleanExpiredFrontend()">🧹 Clean Expired</button>
+                <button class="btn danger" onclick="clearFrontendCache()">🗑️ Clear All</button>
+            </div>
+        </div>
+        
+        <!-- Performance Tests -->
+        <div class="card">
+            <h2>⚡ Performance Tests</h2>
+            <div class="actions">
+                <button class="btn" onclick="testApiSpeed()">🏃 Test API Speed</button>
+                <button class="btn" onclick="testWithCache()">📦 Test With Cache</button>
+                <button class="btn" onclick="testWithoutCache()">🔄 Test Without Cache</button>
+            </div>
+            <div id="performance-results"></div>
+        </div>
+        
+        <!-- Activity Log -->
+        <div class="card">
+            <h2>📝 Activity Log</h2>
+            <div id="activity-log"></div>
+        </div>
+    </div>
+
+    <script src="../js/cache.js"></script>
+    <script>
+        let activityLog = [];
+        
+        function logActivity(message, type = 'info') {
+            activityLog.unshift({
+                time: new Date().toLocaleTimeString(),
+                message: message,
+                type: type
+            });
+            
+            if (activityLog.length > 20) {
+                activityLog = activityLog.slice(0, 20);
+            }
+            
+            updateActivityLog();
+        }
+        
+        function updateActivityLog() {
+            const logContainer = document.getElementById('activity-log');
+            logContainer.innerHTML = activityLog.map(entry => 
+                `<div class="log ${entry.type}">
+                    <strong>${entry.time}</strong> - ${entry.message}
+                </div>`
+            ).join('');
+        }
+        
+        async function refreshBackendStats() {
+            try {
+                logActivity('Fetching backend cache statistics...');
+                const response = await fetch('../../backend/api/cache_management.php?action=stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const stats = data.cache_stats;
+                    document.getElementById('backend-stats').innerHTML = `
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value">${stats.total_files}</div>
+                                <div class="stat-label">Cache Files</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${stats.total_size_mb}</div>
+                                <div class="stat-label">Size (MB)</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${data.expired_cleaned}</div>
+                                <div class="stat-label">Cleaned Expired</div>
+                            </div>
+                        </div>
+                    `;
+                    logActivity('Backend cache stats updated', 'success');
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                logActivity('Failed to fetch backend stats: ' + error.message, 'error');
+                document.getElementById('backend-stats').innerHTML = 
+                    '<div class="error">Failed to load backend cache stats</div>';
+            }
+        }
+        
+        async function clearBackendCache(type = null) {
+            try {
+                const typeParam = type ? `&type=${type}` : '';
+                const response = await fetch(`../../backend/api/cache_management.php?action=clear${typeParam}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    logActivity(data.message, 'success');
+                    refreshBackendStats();
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                logActivity('Failed to clear cache: ' + error.message, 'error');
+            }
+        }
+        
+        async function warmupCache() {
+            try {
+                logActivity('Warming up cache...');
+                const response = await fetch('../../backend/api/cache_management.php?action=warmup');
+                const data = await response.json();
+                
+                if (data.success) {
+                    logActivity('Cache warmed up successfully', 'success');
+                    Object.entries(data.warmup_results).forEach(([key, value]) => {
+                        logActivity(`${key}: ${value}`, 'success');
+                    });
+                    refreshBackendStats();
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                logActivity('Failed to warm up cache: ' + error.message, 'error');
+            }
+        }
+        
+        function refreshFrontendStats() {
+            if (typeof frontendCache !== 'undefined') {
+                const stats = frontendCache.getStats();
+                document.getElementById('frontend-items').textContent = stats.totalItems;
+                document.getElementById('frontend-size').textContent = stats.totalSizeKB;
+                document.getElementById('frontend-expired').textContent = stats.expiredItems;
+                logActivity('Frontend cache stats updated', 'success');
+            } else {
+                logActivity('Frontend cache not available', 'error');
+            }
+        }
+        
+        function cleanExpiredFrontend() {
+            if (typeof frontendCache !== 'undefined') {
+                const cleaned = frontendCache.cleanExpired();
+                logActivity(`Cleaned ${cleaned} expired frontend cache items`, 'success');
+                refreshFrontendStats();
+            }
+        }
+        
+        function clearFrontendCache() {
+            if (typeof frontendCache !== 'undefined') {
+                frontendCache.clear();
+                logActivity('Frontend cache cleared', 'success');
+                refreshFrontendStats();
+            }
+        }
+        
+        async function testApiSpeed() {
+            const startTime = Date.now();
+            try {
+                logActivity('Testing API speed...');
+                const response = await fetch('../../api_speed_test.php');
+                const data = await response.json();
+                const totalTime = Date.now() - startTime;
+                
+                document.getElementById('performance-results').innerHTML = `
+                    <div class="log success">
+                        <strong>API Speed Test Results:</strong><br>
+                        Frontend to API: ${totalTime}ms<br>
+                        ${data.timings ? Object.entries(data.timings).map(([key, value]) => `${key}: ${value}`).join('<br>') : ''}
+                    </div>
+                `;
+                logActivity(`API speed test completed in ${totalTime}ms`, 'success');
+            } catch (error) {
+                logActivity('API speed test failed: ' + error.message, 'error');
+            }
+        }
+        
+        async function testWithCache() {
+            try {
+                logActivity('Testing with cache...');
+                const startTime = Date.now();
+                
+                if (typeof cacheApiCall !== 'undefined') {
+                    const data = await cacheApiCall('../../backend/api/get_dashboard_metrics_cached.php');
+                    const totalTime = Date.now() - startTime;
+                    
+                    document.getElementById('performance-results').innerHTML = `
+                        <div class="log success">
+                            <strong>Cached API Test:</strong><br>
+                            Time: ${totalTime}ms<br>
+                            Cached: ${data.cached ? 'Yes' : 'No'}<br>
+                            Metrics loaded: ${Object.keys(data.metrics || {}).length} items
+                        </div>
+                    `;
+                    logActivity(`Cached API test completed in ${totalTime}ms`, 'success');
+                } else {
+                    throw new Error('Cache API not available');
+                }
+            } catch (error) {
+                logActivity('Cached API test failed: ' + error.message, 'error');
+            }
+        }
+        
+        async function testWithoutCache() {
+            try {
+                logActivity('Testing without cache...');
+                const startTime = Date.now();
+                
+                // Clear cache first
+                if (typeof frontendCache !== 'undefined') {
+                    frontendCache.invalidateCache('dashboard_metrics');
+                }
+                
+                const response = await fetch('../../backend/api/get_dashboard_metrics_cached.php');
+                const data = await response.json();
+                const totalTime = Date.now() - startTime;
+                
+                document.getElementById('performance-results').innerHTML = `
+                    <div class="log">
+                        <strong>Non-Cached API Test:</strong><br>
+                        Time: ${totalTime}ms<br>
+                        Fresh data: Yes<br>
+                        Metrics loaded: ${Object.keys(data.metrics || {}).length} items
+                    </div>
+                `;
+                logActivity(`Non-cached API test completed in ${totalTime}ms`, 'success');
+            } catch (error) {
+                logActivity('Non-cached API test failed: ' + error.message, 'error');
+            }
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            logActivity('Cache management page loaded', 'success');
+            refreshBackendStats();
+            refreshFrontendStats();
+        });
+    </script>
+</body>
+</html>

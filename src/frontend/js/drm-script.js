@@ -145,12 +145,10 @@ document.addEventListener("DOMContentLoaded", function () {
           notificationContent.innerHTML = data
             .map(
               (n) =>
-                `<p>${
-                  n.message
-                } <span style='font-size:0.8em;color:#888;'>(${
+                `<p>${n.message} <span style='font-size:0.8em;color:#888;'>(${
                   n.sent_at && !isNaN(new Date(n.sent_at))
                     ? new Date(n.sent_at).toLocaleString()
-                    : 'N/A'
+                    : "N/A"
                 })</span></p>`
             )
             .join("");
@@ -186,70 +184,83 @@ document.addEventListener("DOMContentLoaded", () => {
   if (quickRequestForm) {
     quickRequestForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      
+
       const requestType = document.getElementById("request-type").value;
       const requestDate = document.getElementById("request-date").value;
-      
+
       if (!requestType || !requestDate) {
         alert("Please fill in all fields");
         return;
       }
-      
+
       // Get current user's phone number (you might want to store this in session)
-      const phone = prompt("Please enter your phone number (e.g., 0712345678):");
+      const phone = prompt(
+        "Please enter your phone number (e.g., 0712345678):"
+      );
       if (!phone || !phone.match(/^0\d{9}$/)) {
         alert("Please enter a valid phone number");
         return;
       }
-      
+
       // Prepare data for submission
       const requestData = {
         phone: phone,
         location: "Quick request location", // Default location
-        waste_type: requestType === "waste-pickup" ? "General" : 
-                   requestType === "recycling" ? "Recyclable" : "Special",
+        waste_type:
+          requestType === "waste-pickup"
+            ? "General"
+            : requestType === "recycling"
+            ? "Recyclable"
+            : "Special",
         preferred_date: requestDate + "T10:00", // Default time 10 AM
         notes: `Quick request: ${requestType}`,
         urgency: "Normal",
         resolved_address: "Quick request address",
-        address_details: ""
+        address_details: "",
       };
-      
+
       // Submit to backend with timeout handling
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), 8000); // 8 second timeout
+        setTimeout(() => reject(new Error("Request timeout")), 8000); // 8 second timeout
       });
-      
+
       const fetchPromise = fetch("../../backend/api/place_request.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(requestData)
+        body: JSON.stringify(requestData),
       });
-      
+
       Promise.race([fetchPromise, timeoutPromise])
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        if (data.success) {
-          alert(`Request Submitted Successfully!\nType: ${requestType}\nDate: ${requestDate}\nRequest ID: ${data.request_id}`);
-          quickRequestForm.reset();
-        } else {
-          alert("Error submitting request: " + (data.error || data.message || "Unknown error"));
-        }
-      })
-      .catch(error => {
-        console.error("Quick request error:", error);
-        if (error.message === 'Request timeout') {
-          alert("Request timed out. Please check your connection and try again.");
-        } else {
-          alert("Error submitting request. Please try again.");
-        }
-      });
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then((data) => {
+          if (data.success) {
+            alert(
+              `Request Submitted Successfully!\nType: ${requestType}\nDate: ${requestDate}\nRequest ID: ${data.request_id}`
+            );
+            quickRequestForm.reset();
+          } else {
+            alert(
+              "Error submitting request: " +
+                (data.error || data.message || "Unknown error")
+            );
+          }
+        })
+        .catch((error) => {
+          console.error("Quick request error:", error);
+          if (error.message === "Request timeout") {
+            alert(
+              "Request timed out. Please check your connection and try again."
+            );
+          } else {
+            alert("Error submitting request. Please try again.");
+          }
+        });
     });
   }
 });

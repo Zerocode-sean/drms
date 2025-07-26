@@ -1,125 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Request Submission Test</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .test-container { max-width: 600px; margin: 0 auto; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        .result { margin-top: 20px; padding: 10px; border-radius: 4px; }
-        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .timing { background: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .test-container {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      .result {
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .timing {
+        background: #e2e3e5;
+        color: #383d41;
+        border: 1px solid #d6d8db;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="test-container">
-        <h1>Request Submission Test</h1>
-        <p>Test the optimized request submission API</p>
-        
-        <form id="testForm">
-            <div class="form-group">
-                <label for="waste_type">Waste Type:</label>
-                <select id="waste_type" name="waste_type" required>
-                    <option value="General">General Waste</option>
-                    <option value="Recyclable">Recyclable</option>
-                    <option value="Special">Special Waste</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="preferred_date">Preferred Date:</label>
-                <input type="datetime-local" id="preferred_date" name="preferred_date" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="phone">Phone Number:</label>
-                <input type="text" id="phone" name="phone" placeholder="0712345678">
-            </div>
-            
-            <div class="form-group">
-                <label for="location">Location:</label>
-                <input type="text" id="location" name="location" placeholder="Your location">
-            </div>
-            
-            <div class="form-group">
-                <label for="notes">Notes:</label>
-                <textarea id="notes" name="notes" rows="3" placeholder="Additional notes (optional)"></textarea>
-            </div>
-            
-            <button type="submit" id="submitBtn">Submit Test Request</button>
-        </form>
-        
-        <div id="result"></div>
+      <h1>Request Submission Test</h1>
+      <p>Test the optimized request submission API</p>
+
+      <form id="testForm">
+        <div class="form-group">
+          <label for="waste_type">Waste Type:</label>
+          <select id="waste_type" name="waste_type" required>
+            <option value="General">General Waste</option>
+            <option value="Recyclable">Recyclable</option>
+            <option value="Special">Special Waste</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="preferred_date">Preferred Date:</label>
+          <input
+            type="datetime-local"
+            id="preferred_date"
+            name="preferred_date"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number:</label>
+          <input type="text" id="phone" name="phone" placeholder="0712345678" />
+        </div>
+
+        <div class="form-group">
+          <label for="location">Location:</label>
+          <input
+            type="text"
+            id="location"
+            name="location"
+            placeholder="Your location"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Notes:</label>
+          <textarea
+            id="notes"
+            name="notes"
+            rows="3"
+            placeholder="Additional notes (optional)"
+          ></textarea>
+        </div>
+
+        <button type="submit" id="submitBtn">Submit Test Request</button>
+      </form>
+
+      <div id="result"></div>
     </div>
 
     <script>
-        // Set default date to tomorrow
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(10, 0);
-        document.getElementById('preferred_date').value = tomorrow.toISOString().slice(0, 16);
-        
-        document.getElementById('testForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const startTime = Date.now();
-            const submitBtn = document.getElementById('submitBtn');
-            const resultDiv = document.getElementById('result');
-            
-            submitBtn.textContent = 'Testing...';
-            submitBtn.disabled = true;
-            resultDiv.innerHTML = '';
-            
-            const formData = new FormData(this);
-            const requestData = {
-                waste_type: formData.get('waste_type'),
-                preferred_date: formData.get('preferred_date'),
-                phone: formData.get('phone') || '0712345678',
-                location: formData.get('location') || 'Test Location',
-                notes: formData.get('notes') || 'Test request submission',
-                urgency: 'Normal',
-                resolved_address: 'Test Address',
-                address_details: 'Test Details'
-            };
-            
-            try {
-                console.log('Sending request:', requestData);
-                
-                // Create timeout promise
-                const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error('Request timeout')), 10000);
-                });
-                
-                // Create fetch promise
-                const fetchPromise = fetch('./src/backend/api/place_request.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(requestData)
-                });
-                
-                // Race between fetch and timeout
-                const response = await Promise.race([fetchPromise, timeoutPromise]);
-                const responseTime = Date.now() - startTime;
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                console.log('Response:', data);
-                
-                if (data.success) {
-                    resultDiv.innerHTML = `
+      // Set default date to tomorrow
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(10, 0);
+      document.getElementById("preferred_date").value = tomorrow
+        .toISOString()
+        .slice(0, 16);
+
+      document
+        .getElementById("testForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const startTime = Date.now();
+          const submitBtn = document.getElementById("submitBtn");
+          const resultDiv = document.getElementById("result");
+
+          submitBtn.textContent = "Testing...";
+          submitBtn.disabled = true;
+          resultDiv.innerHTML = "";
+
+          const formData = new FormData(this);
+          const requestData = {
+            waste_type: formData.get("waste_type"),
+            preferred_date: formData.get("preferred_date"),
+            phone: formData.get("phone") || "0712345678",
+            location: formData.get("location") || "Test Location",
+            notes: formData.get("notes") || "Test request submission",
+            urgency: "Normal",
+            resolved_address: "Test Address",
+            address_details: "Test Details",
+          };
+
+          try {
+            console.log("Sending request:", requestData);
+
+            // Create timeout promise
+            const timeoutPromise = new Promise((_, reject) => {
+              setTimeout(() => reject(new Error("Request timeout")), 10000);
+            });
+
+            // Create fetch promise
+            const fetchPromise = fetch("./src/backend/api/place_request.php", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+              body: JSON.stringify(requestData),
+            });
+
+            // Race between fetch and timeout
+            const response = await Promise.race([fetchPromise, timeoutPromise]);
+            const responseTime = Date.now() - startTime;
+
+            if (!response.ok) {
+              throw new Error(
+                `HTTP ${response.status}: ${response.statusText}`
+              );
+            }
+
+            const data = await response.json();
+            console.log("Response:", data);
+
+            if (data.success) {
+              resultDiv.innerHTML = `
                         <div class="result success">
                             ✅ <strong>Success!</strong><br>
                             Request ID: ${data.request_id}<br>
@@ -129,26 +195,28 @@
                             ⏱️ Response Time: ${responseTime}ms
                         </div>
                     `;
-                } else {
-                    resultDiv.innerHTML = `
+            } else {
+              resultDiv.innerHTML = `
                         <div class="result error">
-                            ❌ <strong>Error:</strong> ${data.error || 'Unknown error'}
+                            ❌ <strong>Error:</strong> ${
+                              data.error || "Unknown error"
+                            }
                         </div>
                         <div class="result timing">
                             ⏱️ Response Time: ${responseTime}ms
                         </div>
                     `;
-                }
-            } catch (error) {
-                const responseTime = Date.now() - startTime;
-                console.error('Error:', error);
-                
-                let errorMessage = error.message;
-                if (error.message === 'Request timeout') {
-                    errorMessage = 'Request timed out after 10 seconds';
-                }
-                
-                resultDiv.innerHTML = `
+            }
+          } catch (error) {
+            const responseTime = Date.now() - startTime;
+            console.error("Error:", error);
+
+            let errorMessage = error.message;
+            if (error.message === "Request timeout") {
+              errorMessage = "Request timed out after 10 seconds";
+            }
+
+            resultDiv.innerHTML = `
                     <div class="result error">
                         💥 <strong>Network Error:</strong> ${errorMessage}
                     </div>
@@ -156,11 +224,11 @@
                         ⏱️ Time Elapsed: ${responseTime}ms
                     </div>
                 `;
-            } finally {
-                submitBtn.textContent = 'Submit Test Request';
-                submitBtn.disabled = false;
-            }
+          } finally {
+            submitBtn.textContent = "Submit Test Request";
+            submitBtn.disabled = false;
+          }
         });
     </script>
-</body>
+  </body>
 </html>

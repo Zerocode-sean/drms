@@ -1,22 +1,25 @@
 # 🗄️ Database Setup Guide - PlanetScale (Free MySQL)
 
 ## Why PlanetScale?
+
 ✅ **10GB free storage** - Perfect for DRMS  
 ✅ **1 billion row reads/month** - More than enough  
 ✅ **10 million row writes/month** - Handles all your traffic  
 ✅ **No credit card required** for free tier  
 ✅ **Built-in branching** like Git for databases  
-✅ **Automatic backups and scaling**  
+✅ **Automatic backups and scaling**
 
 ## Step-by-Step Setup
 
 ### 1. Create PlanetScale Account
+
 1. Go to **https://planetscale.com**
 2. Click **"Sign up"**
 3. Choose **"Sign up with GitHub"** (recommended)
 4. Verify your email if prompted
 
 ### 2. Create Database
+
 1. Click **"Create database"**
 2. **Database name**: `drms-production`
 3. **Region**: Choose closest to your users (US East, EU West, etc.)
@@ -24,15 +27,17 @@
 5. Click **"Create database"**
 
 ### 3. Get Connection Details
+
 1. Go to your database dashboard
 2. Click **"Connect"**
-3. Select **"PHP (PDO)"** 
+3. Select **"PHP (PDO)"**
 4. Copy the connection string - it looks like:
    ```
    mysql://username:password@host:3306/database_name?sslaccept=strict
    ```
 
 ### 4. Parse Connection String for Render
+
 From your connection string, extract these values:
 
 **Example**: `mysql://abc123:pscale_pw_xyz@aws.connect.psdb.cloud:3306/drms-production?sslaccept=strict`
@@ -44,6 +49,7 @@ From your connection string, extract these values:
 - **DATABASE_PORT**: `3306`
 
 ### 5. Add to Render Environment Variables
+
 Go to Render dashboard → Your service → **Environment** tab:
 
 ```
@@ -57,12 +63,14 @@ DATABASE_PORT=3306
 ### 6. Import Your Database Schema
 
 #### Option A: Using PlanetScale Console (Web Interface)
+
 1. In PlanetScale dashboard, click **"Console"**
 2. Select your database and branch (`main`)
 3. Copy and paste your SQL schema
 4. Run the queries
 
 #### Option B: Using PlanetScale CLI (Advanced)
+
 ```bash
 # Install PlanetScale CLI
 npm install -g @planetscale/cli
@@ -153,11 +161,11 @@ CREATE TABLE admin_settings (
 );
 
 -- Insert default admin user
-INSERT INTO users (name, email, phone, password, role) VALUES 
+INSERT INTO users (name, email, phone, password, role) VALUES
 ('Admin User', 'admin@drms.com', '+254700000000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
 
 -- Insert default settings
-INSERT INTO admin_settings (setting_key, setting_value) VALUES 
+INSERT INTO admin_settings (setting_key, setting_value) VALUES
 ('app_name', 'DRMS - Digital Residential Waste Management'),
 ('default_pickup_fee', '200.00'),
 ('contact_phone', '+254700000000'),
@@ -182,8 +190,9 @@ The connection should work once you complete the setup!
 ## 🎯 Ready to Start?
 
 **Which step are you on?**
+
 1. Creating PlanetScale account
-2. Setting up the database  
+2. Setting up the database
 3. Getting connection details
 4. Adding to Render environment variables
 5. Importing schema
