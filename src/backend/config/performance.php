@@ -66,13 +66,11 @@ ini_set('session.cookie_httponly', 1);
 ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
 ini_set('session.cookie_samesite', 'Lax');
 
-// Opcache optimization (if available)
+// Opcache status check (settings cannot be changed at runtime)
 if (function_exists('opcache_get_status')) {
-    ini_set('opcache.enable', 1);
-    ini_set('opcache.memory_consumption', 128);
-    ini_set('opcache.max_accelerated_files', 4000);
-    ini_set('opcache.revalidate_freq', 60);
-    ini_set('opcache.fast_shutdown', 1);
+    $opcache_status = opcache_get_status();
+    // OPcache is available and configured via php.ini
+    // Settings like opcache.enable cannot be changed at runtime
 }
 
 // Auto cleanup cache periodically (1% chance)

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRWMS - Secure Payment</title>
-    <link rel="stylesheet" href="../css/pay.css">
-    <link rel="icon" href="../images/logo.png">
+    <link rel="stylesheet" href="/src/frontend/css/pay.css">
+    <link rel="icon" href="/src/frontend/images/logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -13,7 +13,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">
-                <img src="../images/logo.png" alt="DRWMS Logo" class="logo-img">
+                <img src="/src/frontend/images/logo.png" alt="DRWMS Logo" class="logo-img">
              
                 <span>DRWMS</span>
             </div>
@@ -116,6 +116,6 @@
         </div>
     </div>
     
-    <script src="../js/pay.js"></script>
+    <script src="/src/frontend/js/pay.js"></script>
 </body>
 </html>

@@ -1,216 +1,324 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Performance Comparison - DRMS</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .card { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .results { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
-        .result-item { background: #f8f9fa; padding: 15px; border-radius: 6px; text-align: center; }
-        .time { font-size: 2em; font-weight: bold; color: #007bff; }
-        .label { color: #666; margin-top: 5px; }
-        .btn { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; font-size: 16px; }
-        .btn:hover { background: #0056b3; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
-        .improvement { background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin: 10px 0; text-align: center; font-weight: bold; }
-        .comparison { background: #fff3cd; padding: 15px; border-radius: 6px; margin: 10px 0; }
-        .log { background: #f8f9fa; padding: 10px; margin: 5px 0; border-left: 4px solid #007bff; border-radius: 0 4px 4px 0; }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .card {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .results {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 20px 0;
+      }
+      .result-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        text-align: center;
+      }
+      .time {
+        font-size: 2em;
+        font-weight: bold;
+        color: #007bff;
+      }
+      .label {
+        color: #666;
+        margin-top: 5px;
+      }
+      .btn {
+        background: #007bff;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+        font-size: 16px;
+      }
+      .btn:hover {
+        background: #0056b3;
+      }
+      .btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      .improvement {
+        background: #d4edda;
+        color: #155724;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+        text-align: center;
+        font-weight: bold;
+      }
+      .comparison {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+      }
+      .log {
+        background: #f8f9fa;
+        padding: 10px;
+        margin: 5px 0;
+        border-left: 4px solid #007bff;
+        border-radius: 0 4px 4px 0;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>⚡ DRMS Performance Comparison</h1>
-        <p>Test the performance difference between cached and non-cached API calls</p>
-        
-        <div class="card">
-            <h2>🏁 Performance Tests</h2>
-            <div style="text-align: center; margin: 20px 0;">
-                <button class="btn" onclick="runAllTests()" id="runBtn">🚀 Run All Performance Tests</button>
-                <button class="btn" onclick="clearResults()">🗑️ Clear Results</button>
-            </div>
-            
-            <div class="results" id="results" style="display: none;">
-                <div class="result-item">
-                    <div class="time" id="cachedTime">-</div>
-                    <div class="label">Cached API (ms)</div>
-                </div>
-                <div class="result-item">
-                    <div class="time" id="nonCachedTime">-</div>
-                    <div class="label">Non-Cached API (ms)</div>
-                </div>
-            </div>
-            
-            <div id="improvement" style="display: none;"></div>
-            
-            <div class="comparison" id="comparison" style="display: none;">
-                <h3>📊 Detailed Comparison</h3>
-                <div id="comparisonDetails"></div>
-            </div>
+      <h1>⚡ DRMS Performance Comparison</h1>
+      <p>
+        Test the performance difference between cached and non-cached API calls
+      </p>
+
+      <div class="card">
+        <h2>🏁 Performance Tests</h2>
+        <div style="text-align: center; margin: 20px 0">
+          <button class="btn" onclick="runAllTests()" id="runBtn">
+            🚀 Run All Performance Tests
+          </button>
+          <button class="btn" onclick="clearResults()">🗑️ Clear Results</button>
         </div>
-        
-        <div class="card">
-            <h2>📝 Test Log</h2>
-            <div id="testLog"></div>
+
+        <div class="results" id="results" style="display: none">
+          <div class="result-item">
+            <div class="time" id="cachedTime">-</div>
+            <div class="label">Cached API (ms)</div>
+          </div>
+          <div class="result-item">
+            <div class="time" id="nonCachedTime">-</div>
+            <div class="label">Non-Cached API (ms)</div>
+          </div>
         </div>
-        
-        <div class="card">
-            <h2>💡 Caching Benefits</h2>
-            <ul>
-                <li><strong>Faster Load Times:</strong> Cached data loads instantly from browser storage</li>
-                <li><strong>Reduced Server Load:</strong> Fewer database queries and API calls</li>
-                <li><strong>Better User Experience:</strong> Immediate response for frequently accessed data</li>
-                <li><strong>Bandwidth Savings:</strong> Less data transfer between client and server</li>
-                <li><strong>Offline Capability:</strong> Some cached data available when connection is poor</li>
-            </ul>
+
+        <div id="improvement" style="display: none"></div>
+
+        <div class="comparison" id="comparison" style="display: none">
+          <h3>📊 Detailed Comparison</h3>
+          <div id="comparisonDetails"></div>
         </div>
+      </div>
+
+      <div class="card">
+        <h2>📝 Test Log</h2>
+        <div id="testLog"></div>
+      </div>
+
+      <div class="card">
+        <h2>💡 Caching Benefits</h2>
+        <ul>
+          <li>
+            <strong>Faster Load Times:</strong> Cached data loads instantly from
+            browser storage
+          </li>
+          <li>
+            <strong>Reduced Server Load:</strong> Fewer database queries and API
+            calls
+          </li>
+          <li>
+            <strong>Better User Experience:</strong> Immediate response for
+            frequently accessed data
+          </li>
+          <li>
+            <strong>Bandwidth Savings:</strong> Less data transfer between
+            client and server
+          </li>
+          <li>
+            <strong>Offline Capability:</strong> Some cached data available when
+            connection is poor
+          </li>
+        </ul>
+      </div>
     </div>
 
     <script src="src/frontend/js/cache.js"></script>
     <script>
-        let testLog = [];
-        
-        function log(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            testLog.unshift({ time: timestamp, message, type });
-            updateLog();
+      let testLog = [];
+
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        testLog.unshift({ time: timestamp, message, type });
+        updateLog();
+      }
+
+      function updateLog() {
+        const logContainer = document.getElementById("testLog");
+        logContainer.innerHTML = testLog
+          .slice(0, 10)
+          .map(
+            (entry) => `<div class="log">${entry.time} - ${entry.message}</div>`
+          )
+          .join("");
+      }
+
+      async function testCachedAPI() {
+        log("Testing cached API performance...");
+        const startTime = Date.now();
+
+        try {
+          // First call - will cache the data
+          await cacheApiCall(
+            "src/backend/api/get_dashboard_metrics_cached.php",
+            {},
+            { ttl: 300000 }
+          );
+
+          // Second call - should be from cache
+          const cachedStartTime = Date.now();
+          const data = await cacheApiCall(
+            "src/backend/api/get_dashboard_metrics_cached.php",
+            {},
+            { ttl: 300000 }
+          );
+          const cachedTime = Date.now() - cachedStartTime;
+
+          log(`Cached API call completed in ${cachedTime}ms`, "success");
+          return cachedTime;
+        } catch (error) {
+          log(`Cached API test failed: ${error.message}`, "error");
+          return null;
         }
-        
-        function updateLog() {
-            const logContainer = document.getElementById('testLog');
-            logContainer.innerHTML = testLog.slice(0, 10).map(entry => 
-                `<div class="log">${entry.time} - ${entry.message}</div>`
-            ).join('');
-        }
-        
-        async function testCachedAPI() {
-            log('Testing cached API performance...');
-            const startTime = Date.now();
-            
-            try {
-                // First call - will cache the data
-                await cacheApiCall('src/backend/api/get_dashboard_metrics_cached.php', {}, { ttl: 300000 });
-                
-                // Second call - should be from cache
-                const cachedStartTime = Date.now();
-                const data = await cacheApiCall('src/backend/api/get_dashboard_metrics_cached.php', {}, { ttl: 300000 });
-                const cachedTime = Date.now() - cachedStartTime;
-                
-                log(`Cached API call completed in ${cachedTime}ms`, 'success');
-                return cachedTime;
-            } catch (error) {
-                log(`Cached API test failed: ${error.message}`, 'error');
-                return null;
+      }
+
+      async function testNonCachedAPI() {
+        log("Testing non-cached API performance...");
+
+        try {
+          // Clear any existing cache
+          if (typeof frontendCache !== "undefined") {
+            frontendCache.clear();
+          }
+
+          const startTime = Date.now();
+          const response = await fetch(
+            "src/backend/api/get_dashboard_metrics_cached.php",
+            {
+              method: "GET",
+              credentials: "include",
+              cache: "no-cache",
             }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+          const nonCachedTime = Date.now() - startTime;
+
+          log(`Non-cached API call completed in ${nonCachedTime}ms`, "success");
+          return nonCachedTime;
+        } catch (error) {
+          log(`Non-cached API test failed: ${error.message}`, "error");
+          return null;
         }
-        
-        async function testNonCachedAPI() {
-            log('Testing non-cached API performance...');
-            
-            try {
-                // Clear any existing cache
-                if (typeof frontendCache !== 'undefined') {
-                    frontendCache.clear();
-                }
-                
-                const startTime = Date.now();
-                const response = await fetch('src/backend/api/get_dashboard_metrics_cached.php', {
-                    method: 'GET',
-                    credentials: 'include',
-                    cache: 'no-cache'
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const data = await response.json();
-                const nonCachedTime = Date.now() - startTime;
-                
-                log(`Non-cached API call completed in ${nonCachedTime}ms`, 'success');
-                return nonCachedTime;
-            } catch (error) {
-                log(`Non-cached API test failed: ${error.message}`, 'error');
-                return null;
-            }
+      }
+
+      async function runAllTests() {
+        const runBtn = document.getElementById("runBtn");
+        runBtn.disabled = true;
+        runBtn.textContent = "🔄 Running Tests...";
+
+        try {
+          log("Starting performance comparison tests...");
+
+          // Test non-cached first
+          const nonCachedTime = await testNonCachedAPI();
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
+
+          // Test cached
+          const cachedTime = await testCachedAPI();
+
+          if (nonCachedTime && cachedTime) {
+            displayResults(cachedTime, nonCachedTime);
+            log("Performance comparison completed successfully", "success");
+          } else {
+            log(
+              "Performance comparison failed - some tests returned null",
+              "error"
+            );
+          }
+        } catch (error) {
+          log(`Performance comparison error: ${error.message}`, "error");
+        } finally {
+          runBtn.disabled = false;
+          runBtn.textContent = "🚀 Run All Performance Tests";
         }
-        
-        async function runAllTests() {
-            const runBtn = document.getElementById('runBtn');
-            runBtn.disabled = true;
-            runBtn.textContent = '🔄 Running Tests...';
-            
-            try {
-                log('Starting performance comparison tests...');
-                
-                // Test non-cached first
-                const nonCachedTime = await testNonCachedAPI();
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
-                
-                // Test cached
-                const cachedTime = await testCachedAPI();
-                
-                if (nonCachedTime && cachedTime) {
-                    displayResults(cachedTime, nonCachedTime);
-                    log('Performance comparison completed successfully', 'success');
-                } else {
-                    log('Performance comparison failed - some tests returned null', 'error');
-                }
-                
-            } catch (error) {
-                log(`Performance comparison error: ${error.message}`, 'error');
-            } finally {
-                runBtn.disabled = false;
-                runBtn.textContent = '🚀 Run All Performance Tests';
-            }
-        }
-        
-        function displayResults(cachedTime, nonCachedTime) {
-            document.getElementById('cachedTime').textContent = cachedTime;
-            document.getElementById('nonCachedTime').textContent = nonCachedTime;
-            document.getElementById('results').style.display = 'grid';
-            
-            const improvement = Math.round(((nonCachedTime - cachedTime) / nonCachedTime) * 100);
-            const speedup = Math.round(nonCachedTime / cachedTime * 10) / 10;
-            
-            const improvementDiv = document.getElementById('improvement');
-            improvementDiv.innerHTML = `
+      }
+
+      function displayResults(cachedTime, nonCachedTime) {
+        document.getElementById("cachedTime").textContent = cachedTime;
+        document.getElementById("nonCachedTime").textContent = nonCachedTime;
+        document.getElementById("results").style.display = "grid";
+
+        const improvement = Math.round(
+          ((nonCachedTime - cachedTime) / nonCachedTime) * 100
+        );
+        const speedup = Math.round((nonCachedTime / cachedTime) * 10) / 10;
+
+        const improvementDiv = document.getElementById("improvement");
+        improvementDiv.innerHTML = `
                 🎉 Cache Performance Improvement: <strong>${improvement}%</strong> faster 
                 (${speedup}x speedup)
             `;
-            improvementDiv.style.display = 'block';
-            
-            const comparisonDiv = document.getElementById('comparison');
-            document.getElementById('comparisonDetails').innerHTML = `
+        improvementDiv.style.display = "block";
+
+        const comparisonDiv = document.getElementById("comparison");
+        document.getElementById("comparisonDetails").innerHTML = `
                 <p><strong>Non-Cached:</strong> ${nonCachedTime}ms - Full database query + network transfer</p>
                 <p><strong>Cached:</strong> ${cachedTime}ms - Instant retrieval from browser storage</p>
-                <p><strong>Time Saved:</strong> ${nonCachedTime - cachedTime}ms per request</p>
+                <p><strong>Time Saved:</strong> ${
+                  nonCachedTime - cachedTime
+                }ms per request</p>
                 <p><strong>Performance Gain:</strong> ${improvement}% improvement in response time</p>
-                <p><strong>User Experience:</strong> ${cachedTime < 50 ? 'Instant' : cachedTime < 200 ? 'Very Fast' : 'Fast'} response</p>
+                <p><strong>User Experience:</strong> ${
+                  cachedTime < 50
+                    ? "Instant"
+                    : cachedTime < 200
+                    ? "Very Fast"
+                    : "Fast"
+                } response</p>
             `;
-            comparisonDiv.style.display = 'block';
+        comparisonDiv.style.display = "block";
+      }
+
+      function clearResults() {
+        document.getElementById("results").style.display = "none";
+        document.getElementById("improvement").style.display = "none";
+        document.getElementById("comparison").style.display = "none";
+        testLog = [];
+        updateLog();
+        log("Results cleared");
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        log("Performance comparison tool loaded");
+        if (typeof frontendCache === "undefined") {
+          log("Warning: Frontend cache not available", "error");
+        } else {
+          log("Frontend cache system ready");
         }
-        
-        function clearResults() {
-            document.getElementById('results').style.display = 'none';
-            document.getElementById('improvement').style.display = 'none';
-            document.getElementById('comparison').style.display = 'none';
-            testLog = [];
-            updateLog();
-            log('Results cleared');
-        }
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            log('Performance comparison tool loaded');
-            if (typeof frontendCache === 'undefined') {
-                log('Warning: Frontend cache not available', 'error');
-            } else {
-                log('Frontend cache system ready');
-            }
-        });
+      });
     </script>
-</body>
+  </body>
 </html>

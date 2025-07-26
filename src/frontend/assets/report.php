@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRMS | Report</title>
     
-    <link rel="stylesheet" href="../css/report.css">
-    <link rel="icon" href="../images/logo.png">
+    <link rel="stylesheet" href="/src/frontend/css/report.css">
+    <link rel="icon" href="/src/frontend/images/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="logo">
-            <img src="../images/logo.png" alt="DRWMS Logo" class="logo-img">
+            <img src="/src/frontend/images/logo.png" alt="DRWMS Logo" class="logo-img">
         </div>
         <div class="nav-links">
             <a href="home.php"><i class="fas fa-home"></i> Home</a>
@@ -143,7 +143,7 @@
         </div>
     </footer>
 
-    <script src="../js/report.js"></script>
+    <script src="/src/frontend/js/report.js"></script>
     <script>
         function confirmLogout() {
             if (confirm('Are you sure you want to logout?')) {

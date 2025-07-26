@@ -14,10 +14,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRMS Admin Dashboard</title>
-    <link rel="stylesheet" href="../css/admin.css">
-    <link rel="icon" href="../images/logo.png">
+    <link rel="stylesheet" href="/src/frontend/css/admin.css">
+    <link rel="icon" href="/src/frontend/images/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="../js/admin.js" defer></script>
+    <script src="/src/frontend/js/admin.js" defer></script>
 </head>
 <body>
     <div class="container">
@@ -50,7 +50,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                 <h1>Admin Dashboard</h1>
                 <div class="user-info">
                     <i class="fas fa-bell"></i>
-                    <img src="../images/logo.png" alt="Admin Avatar">
+                    <img src="/src/frontend/images/logo.png" alt="Admin Avatar">
                 </div>
             </header>
             <!-- Dashboard Metrics -->

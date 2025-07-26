@@ -14,8 +14,8 @@ $role = $_SESSION['role'] ?? 'admin';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRMS Admin Profile</title>
-    <link rel="stylesheet" href="../css/admin.css">
-    <link rel="icon" href="../images/logo.png">
+    <link rel="stylesheet" href="/src/frontend/css/admin.css">
+    <link rel="icon" href="/src/frontend/images/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -42,7 +42,7 @@ $role = $_SESSION['role'] ?? 'admin';
             <header>
                 <h1>Profile</h1>
                 <div class="user-info">
-                    <img src="../images/logo.png" alt="Admin Avatar">
+                    <img src="/src/frontend/images/logo.png" alt="Admin Avatar">
                 </div>
             </header>
             <section class="admin-profile">

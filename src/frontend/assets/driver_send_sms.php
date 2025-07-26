@@ -11,8 +11,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'driver') {
     <meta charset="UTF-8">
     <meta name="viewport" content="wid                            <span id="char-count">0</span>/200 charactersh=device-width, initial-scale=1.0">
     <title>Send SMS - DRMS</title>
-    <link rel="stylesheet" href="../css/drm-styles.css">
-    <link rel="icon" href="../images/logo.png">
+    <link rel="stylesheet" href="/src/frontend/css/drm-styles.css">
+    <link rel="icon" href="/src/frontend/images/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         .sms-container {
@@ -216,7 +216,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'driver') {
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <img src="../images/logo.png" alt="DRMS Logo" class="logo-img">
+                <img src="/src/frontend/images/logo.png" alt="DRMS Logo" class="logo-img">
                 <h2>DRMS</h2>
             </div>
             <ul class="nav-menu">
