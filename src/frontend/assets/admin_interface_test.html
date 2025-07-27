@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Smart Scheduling - LIVE TEST</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      .header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      .test-section {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        margin: 8px;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .btn:hover {
+        background: #0056b3;
+      }
+      .btn-success {
+        background: #28a745;
+      }
+      .btn-success:hover {
+        background: #1e7e34;
+      }
+      .btn-warning {
+        background: #ffc107;
+        color: #212529;
+      }
+      .btn-warning:hover {
+        background: #e0a800;
+      }
+      .result {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        border-left: 4px solid #007bff;
+      }
+      .success {
+        border-left-color: #28a745;
+        background: #d4edda;
+      }
+      .error {
+        border-left-color: #dc3545;
+        background: #f8d7da;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 3px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-height: 300px;
+        overflow-y: auto;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎯 Admin Smart Scheduling - LIVE TEST</h1>
+        <p>Testing the admin interface with 50 geographic requests</p>
+      </div>
+
+      <div class="test-section">
+        <h2>🧪 Quick Test Controls</h2>
+        <div>
+          <label>Test Date: </label>
+          <input
+            type="date"
+            id="test-date"
+            value="2025-07-26"
+            style="padding: 8px; border-radius: 4px; border: 1px solid #ddd"
+          />
+          <button class="btn btn-success" onclick="testGenerate()">
+            🚀 Test Generate
+          </button>
+          <button class="btn" onclick="testView()">👁️ Test View</button>
+          <button class="btn btn-warning" onclick="openAdminInterface()">
+            🎯 Open Admin Interface
+          </button>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>📊 Test Results</h2>
+        <div id="results">
+          <div style="text-align: center; color: #666; font-style: italic">
+            Click "Test Generate" to verify the API works...
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🔍 Expected Results</h2>
+        <div class="result">
+          <strong>✅ Expected Success Message:</strong><br />
+          "Schedule generated successfully! 5 drivers assigned to 50 requests."
+
+          <h4>Expected Clustering:</h4>
+          <ul>
+            <li>
+              <strong>5 drivers total</strong> (driver_mike, driver_sarah,
+              driver_tom, driver1, driver2)
+            </li>
+            <li>
+              <strong>10 requests per driver</strong> (perfect load balancing)
+            </li>
+            <li>
+              <strong>Geographic clustering visible</strong> (CBD, Westlands,
+              Kilimani, Karen, etc.)
+            </li>
+            <li><strong>50 total requests processed</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🔗 Quick Access Links</h2>
+        <div>
+          <a href="quick_login.php" target="_blank" class="btn btn-warning"
+            >👤 Quick Login</a
+          >
+          <a href="admin_smart_scheduling.php" target="_blank" class="btn"
+            >🎯 Main Admin Interface</a
+          >
+          <a href="admin_smart_scheduling_debug.php" target="_blank" class="btn"
+            >🔧 Debug Interface</a
+          >
+          <a
+            href="../../backend/api/smart_scheduling.php?action=generate&date=2025-07-26"
+            target="_blank"
+            class="btn btn-success"
+            >🚀 Direct API Test</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showResult(title, data, isSuccess = true) {
+        const results = document.getElementById("results");
+        const className = isSuccess ? "success" : "error";
+        const timestamp = new Date().toLocaleTimeString();
+
+        const resultHtml = `
+                <div class="result ${className}">
+                    <strong>[${timestamp}] ${title}</strong>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+
+        results.innerHTML = resultHtml + results.innerHTML;
+      }
+
+      async function testGenerate() {
+        const date = document.getElementById("test-date").value;
+        console.log("Testing generate for:", date);
+
+        try {
+          const response = await fetch(
+            `../../backend/api/smart_scheduling.php?action=generate&date=${date}`
+          );
+          const data = await response.json();
+
+          console.log("API Response:", data);
+
+          if (data.success) {
+            const driversUsed = data.drivers_used || 0;
+            const totalRequests = data.total_requests || 0;
+
+            showResult(
+              `✅ SUCCESS: ${driversUsed} drivers assigned to ${totalRequests} requests`,
+              {
+                message: data.message,
+                totalRequests: totalRequests,
+                driversUsed: driversUsed,
+                schedulesCreated: data.schedules ? data.schedules.length : 0,
+                date: data.date,
+              },
+              true
+            );
+          } else {
+            showResult(
+              `❌ FAILED: ${data.error || "Unknown error"}`,
+              data,
+              false
+            );
+          }
+        } catch (error) {
+          console.error("Test error:", error);
+          showResult("❌ Network Error", { error: error.message }, false);
+        }
+      }
+
+      async function testView() {
+        const date = document.getElementById("test-date").value;
+        console.log("Testing view for:", date);
+
+        try {
+          const response = await fetch(
+            `../../backend/api/smart_scheduling.php?action=view&date=${date}`
+          );
+          const data = await response.json();
+
+          console.log("View Response:", data);
+
+          if (data.success) {
+            const schedulesFound = data.schedules ? data.schedules.length : 0;
+            const totalAssignments = data.schedules
+              ? data.schedules.reduce(
+                  (sum, s) => sum + (s.assignments ? s.assignments.length : 0),
+                  0
+                )
+              : 0;
+
+            showResult(
+              `✅ VIEW SUCCESS: ${schedulesFound} schedules found`,
+              {
+                schedulesFound: schedulesFound,
+                totalAssignments: totalAssignments,
+                date: data.date,
+              },
+              true
+            );
+          } else {
+            showResult(
+              `❌ VIEW FAILED: ${data.error || "Unknown error"}`,
+              data,
+              false
+            );
+          }
+        } catch (error) {
+          console.error("View error:", error);
+          showResult("❌ Network Error", { error: error.message }, false);
+        }
+      }
+
+      function openAdminInterface() {
+        // Open the main admin interface in a new window
+        window.open("admin_smart_scheduling.php", "_blank");
+      }
+
+      // Auto-run test on load
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("Admin test page loaded");
+
+        // Auto-test after 2 seconds
+        setTimeout(() => {
+          testGenerate();
+        }, 2000);
+      });
+    </script>
+  </body>
+</html>

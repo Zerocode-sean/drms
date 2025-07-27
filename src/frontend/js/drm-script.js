@@ -1,3 +1,15 @@
+
+// Environment-aware base path detection
+function getBasePath() {
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+    return isLocalhost ? '/project' : '';
+}
+
+function getApiPath(endpoint) {
+    return getBasePath() + '/src/backend/api/' + endpoint;
+}
+
 // Mobile Navigation Toggle
 console.log("notifications js resource loaded!");
 const hamburger = document.querySelector(".hamburger");
@@ -138,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   function fetchNotifications() {
-    fetch("../../backend/api/get_notifications.php")
+    fetch(getApiPath("get_notifications.php"))
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
@@ -224,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => reject(new Error("Request timeout")), 8000); // 8 second timeout
       });
 
-      const fetchPromise = fetch("../../backend/api/place_request.php", {
+      const fetchPromise = fetch(getApiPath("place_request.php"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

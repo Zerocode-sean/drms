@@ -1,3 +1,15 @@
+
+// Environment-aware base path detection
+function getBasePath() {
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+    return isLocalhost ? '/project' : '';
+}
+
+function getApiPath(endpoint) {
+    return getBasePath() + '/src/backend/api/' + endpoint;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('contactForm');
     if (!form) return;
@@ -36,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Send AJAX request
-        fetch('/project/src/backend/api/submit_contact.php', {
+        fetch(getApiPath('submit_contact.php'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)

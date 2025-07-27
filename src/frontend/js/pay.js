@@ -1,3 +1,15 @@
+
+// Environment-aware base path detection
+function getBasePath() {
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+    return isLocalhost ? '/project' : '';
+}
+
+function getApiPath(endpoint) {
+    return getBasePath() + '/src/backend/api/' + endpoint;
+}
+
 document.getElementById("paymentForm").addEventListener("submit", function (e) {
   e.preventDefault();
   const amount = document.getElementById("amount").value;
@@ -43,7 +55,7 @@ function initiatePayment(amount, phone, service) {
   );
   payButton.disabled = true;
 
-  fetch("../../backend/api/initiate_payment.php", {
+  fetch(getApiPath("initiate_payment.php"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ amount, phone, service }),
@@ -173,7 +185,7 @@ function startStatusPolling(checkoutRequestId) {
   const pollInterval = setInterval(() => {
     pollCount++;
 
-    fetch("../../backend/api/check_payment_status.php", {
+    fetch(getApiPath("check_payment_status.php"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ checkout_request_id: checkoutRequestId }),

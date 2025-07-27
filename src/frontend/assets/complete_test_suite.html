@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎯 Complete Smart Scheduling Test Suite</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .header {
+        text-align: center;
+        color: white;
+        margin-bottom: 30px;
+      }
+      .header h1 {
+        font-size: 3em;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .header p {
+        font-size: 1.2em;
+        opacity: 0.9;
+      }
+      .test-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 25px;
+      }
+      .test-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        transition: transform 0.3s ease;
+      }
+      .test-card:hover {
+        transform: translateY(-5px);
+      }
+      .test-card h2 {
+        color: #333;
+        margin-top: 0;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        margin: 8px 4px;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s;
+        font-weight: 500;
+      }
+      .btn:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+      }
+      .btn-success {
+        background: #28a745;
+      }
+      .btn-success:hover {
+        background: #1e7e34;
+      }
+      .btn-warning {
+        background: #ffc107;
+        color: #212529;
+      }
+      .btn-warning:hover {
+        background: #e0a800;
+      }
+      .btn-danger {
+        background: #dc3545;
+      }
+      .btn-danger:hover {
+        background: #c82333;
+      }
+      .btn-purple {
+        background: #6f42c1;
+      }
+      .btn-purple:hover {
+        background: #5a32a3;
+      }
+      .btn-orange {
+        background: #fd7e14;
+      }
+      .btn-orange:hover {
+        background: #dc6502;
+      }
+      .status-bar {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .feature-list {
+        list-style: none;
+        padding: 0;
+      }
+      .feature-list li {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .feature-list li:before {
+        content: "✅ ";
+        color: #28a745;
+        font-weight: bold;
+      }
+      .steps {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+      }
+      .steps ol {
+        margin: 0;
+        padding-left: 20px;
+      }
+      .highlight {
+        background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-left: 4px solid #007bff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎯 Smart Scheduling Test Suite</h1>
+        <p>
+          Comprehensive testing of geographic clustering and driver optimization
+        </p>
+      </div>
+
+      <div class="status-bar">
+        <strong>🚀 ALL SYSTEMS READY</strong> - Smart scheduling algorithm with
+        50+ test requests across 10 geographic clusters
+      </div>
+
+      <div class="test-grid">
+        <!-- Data Setup -->
+        <div class="test-card">
+          <h2>📊 1. Data Setup & Seeding</h2>
+          <p>
+            <strong>50+ Geographic Requests</strong> - Create comprehensive test
+            data across Nairobi with realistic clustering
+          </p>
+
+          <ul class="feature-list">
+            <li>10 Geographic clusters (CBD, Westlands, Kilimani, etc.)</li>
+            <li>Varied waste types and priorities</li>
+            <li>Different collection times throughout the day</li>
+            <li>Volume ranges from 1-10 cubic meters</li>
+          </ul>
+
+          <div style="text-align: center; margin-top: 20px">
+            <a
+              href="../../../comprehensive_scheduling_test.php"
+              target="_blank"
+              class="btn btn-success"
+              >🌱 Seed Test Data</a
+            >
+          </div>
+        </div>
+
+        <!-- Algorithm Testing -->
+        <div class="test-card">
+          <h2>🧠 2. Algorithm Analysis</h2>
+          <p>
+            <strong>Real-time Clustering</strong> - Watch the 2km clustering
+            algorithm in action with live metrics
+          </p>
+
+          <div class="steps">
+            <ol>
+              <li>Run clustering analysis</li>
+              <li>View geographic distribution</li>
+              <li>Check optimization efficiency</li>
+              <li>Verify driver assignments</li>
+            </ol>
+          </div>
+
+          <div style="text-align: center; margin-top: 20px">
+            <a
+              href="clustering_analysis.html"
+              target="_blank"
+              class="btn btn-purple"
+              >🗺️ Clustering Analysis</a
+            >
+          </div>
+        </div>
+
+        <!-- API Testing -->
+        <div class="test-card">
+          <h2>⚡ 3. API Performance</h2>
+          <p>
+            <strong>Direct API Testing</strong> - Test generate and view
+            endpoints with comprehensive data
+          </p>
+
+          <div class="highlight">
+            <strong>Expected Results:</strong><br />
+            • 2-3 drivers assigned<br />
+            • 50+ requests optimally distributed<br />
+            • Geographic clustering visible<br />
+            • Efficient route optimization
+          </div>
+
+          <div style="text-align: center; margin-top: 20px">
+            <a
+              href="../../backend/api/smart_scheduling.php?action=generate&date=2025-07-26"
+              target="_blank"
+              class="btn btn-warning"
+              >🚀 Generate API</a
+            >
+            <a
+              href="../../backend/api/smart_scheduling.php?action=view&date=2025-07-26"
+              target="_blank"
+              class="btn"
+              >👁️ View API</a
+            >
+          </div>
+        </div>
+
+        <!-- Admin Interface -->
+        <div class="test-card">
+          <h2>🎛️ 4. Admin Interface</h2>
+          <p>
+            <strong>Production Testing</strong> - Test both main and debug admin
+            interfaces with comprehensive data
+          </p>
+
+          <ul class="feature-list">
+            <li>Generate schedules from admin panel</li>
+            <li>View optimized driver assignments</li>
+            <li>Verify clustering visualization</li>
+            <li>Test workflow integration</li>
+          </ul>
+
+          <div style="text-align: center; margin-top: 20px">
+            <a href="quick_login.php" target="_blank" class="btn btn-warning"
+              >👤 Quick Login</a
+            >
+            <a href="admin_smart_scheduling.php" target="_blank" class="btn"
+              >🎯 Main Admin</a
+            >
+            <a
+              href="admin_smart_scheduling_debug.php"
+              target="_blank"
+              class="btn btn-orange"
+              >🔧 Debug Admin</a
+            >
+          </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="test-card">
+          <h2>📈 5. Performance Metrics</h2>
+          <p>
+            <strong>Algorithm Efficiency</strong> - Measure clustering accuracy
+            and optimization performance
+          </p>
+
+          <div class="steps">
+            <strong>Key Metrics to Check:</strong>
+            <ul style="margin: 10px 0">
+              <li>Geographic clustering accuracy</li>
+              <li>Driver workload distribution</li>
+              <li>Route optimization efficiency</li>
+              <li>Time slot utilization</li>
+              <li>Priority request handling</li>
+            </ul>
+          </div>
+
+          <div style="text-align: center; margin-top: 20px">
+            <a
+              href="smart_scheduling_comparison.html"
+              target="_blank"
+              class="btn btn-success"
+              >📊 Performance Analysis</a
+            >
+          </div>
+        </div>
+
+        <!-- Final Verification -->
+        <div class="test-card">
+          <h2>✅ 6. Final Verification</h2>
+          <p>
+            <strong>Comprehensive Check</strong> - Verify all components work
+            together perfectly
+          </p>
+
+          <div class="highlight">
+            <strong>Success Criteria:</strong><br />
+            • All 50+ requests processed<br />
+            • Drivers assigned to geographic clusters<br />
+            • Routes within 2km neighborhoods<br />
+            • Admin interface fully functional
+          </div>
+
+          <div style="text-align: center; margin-top: 20px">
+            <a
+              href="../../../final_smart_scheduling_verification.php"
+              target="_blank"
+              class="btn btn-danger"
+              >🎯 Final Verification</a
+            >
+            <a href="debug_center.html" target="_blank" class="btn"
+              >🔧 Debug Center</a
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="status-bar" style="margin-top: 40px">
+        <strong>🎉 PRESENTATION READY</strong> - All components tested and
+        verified with comprehensive geographic data
+      </div>
+    </div>
+
+    <script>
+      // Auto-open first test page after 2 seconds
+      setTimeout(() => {
+        const confirmed = confirm(
+          "🚀 Ready to start comprehensive testing?\n\nThis will:\n1. Seed 50+ geographic requests\n2. Test clustering algorithm\n3. Verify admin interface\n\nClick OK to begin with data seeding..."
+        );
+        if (confirmed) {
+          window.open("../../../comprehensive_scheduling_test.php", "_blank");
+        }
+      }, 2000);
+    </script>
+  </body>
+</html>

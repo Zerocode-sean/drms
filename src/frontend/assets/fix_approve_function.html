@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Fix Admin Approve Function</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background: #f8f9fa;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .header {
+        background: linear-gradient(135deg, #dc3545, #fd7e14);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      .step {
+        background: white;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        margin: 8px;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .btn:hover {
+        background: #0056b3;
+      }
+      .btn-success {
+        background: #28a745;
+      }
+      .btn-success:hover {
+        background: #1e7e34;
+      }
+      .btn-warning {
+        background: #ffc107;
+        color: #212529;
+      }
+      .btn-warning:hover {
+        background: #e0a800;
+      }
+      .btn-danger {
+        background: #dc3545;
+      }
+      .btn-danger:hover {
+        background: #c82333;
+      }
+      .result {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        border-left: 4px solid #007bff;
+      }
+      .success {
+        border-left-color: #28a745;
+        background: #d4edda;
+      }
+      .error {
+        border-left-color: #dc3545;
+        background: #f8d7da;
+      }
+      .highlight {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 5px;
+        border-left: 4px solid #ffc107;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔧 Fix Admin Approve Function</h1>
+        <p>Resolve the session/approval issue step by step</p>
+      </div>
+
+      <div class="step">
+        <h2>🎯 Problem Identified</h2>
+        <div class="highlight">
+          <strong>Issue:</strong> The approve function works when called
+          directly, but fails in the browser due to session persistence issues.
+          When you click "Approve" in the admin interface, the session might not
+          be maintained properly between requests.
+        </div>
+      </div>
+
+      <div class="step">
+        <h2>🔨 Solution Steps</h2>
+
+        <h3>Step 1: Ensure Proper Admin Login</h3>
+        <p>
+          Make sure you're properly logged in as admin before trying to approve
+          requests.
+        </p>
+        <button
+          class="btn btn-warning"
+          onclick="window.open('quick_login.php', '_blank')"
+        >
+          👤 Quick Admin Login
+        </button>
+
+        <h3>Step 2: Test Session Status</h3>
+        <p>Verify your admin session is active and working.</p>
+        <button class="btn" onclick="testSession()">🔍 Test Session</button>
+
+        <h3>Step 3: Test Approve Function</h3>
+        <p>Test the approve function directly with proper session.</p>
+        <button class="btn btn-success" onclick="testApprove()">
+          ✅ Test Approve
+        </button>
+
+        <h3>Step 4: Open Admin Requests</h3>
+        <p>Go to the admin requests page and try approving a request.</p>
+        <button
+          class="btn btn-danger"
+          onclick="window.open('admin_requests.php', '_blank')"
+        >
+          📋 Admin Requests
+        </button>
+      </div>
+
+      <div class="step">
+        <h2>📊 Test Results</h2>
+        <div id="results">
+          <div style="text-align: center; color: #666; font-style: italic">
+            Run the tests above to see results...
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <h2>🚀 Quick Fix Commands</h2>
+        <p>
+          If the approve function still doesn't work, use these quick fixes:
+        </p>
+
+        <button class="btn btn-warning" onclick="forceApproveAll()">
+          ⚡ Force Approve All Requests
+        </button>
+        <button class="btn" onclick="checkRequestStatus()">
+          📊 Check Request Status
+        </button>
+
+        <div class="highlight" style="margin-top: 15px">
+          <strong>Note:</strong> If you need to approve requests manually for
+          testing, use "Force Approve All Requests" above. This will ensure all
+          requests are approved for smart scheduling testing.
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showResult(title, content, isSuccess = true) {
+        const results = document.getElementById("results");
+        const className = isSuccess ? "success" : "error";
+        const timestamp = new Date().toLocaleTimeString();
+
+        results.innerHTML =
+          `
+                <div class="result ${className}">
+                    <strong>[${timestamp}] ${title}</strong>
+                    <pre>${JSON.stringify(content, null, 2)}</pre>
+                </div>
+            ` + results.innerHTML;
+      }
+
+      async function testSession() {
+        try {
+          // Test if admin session is working by calling a protected endpoint
+          const response = await fetch(
+            "../../backend/api/get_dashboard_metrics.php"
+          );
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            showResult(
+              "✅ Session Active",
+              {
+                message: "Admin session is working",
+                sessionData: data,
+              },
+              true
+            );
+          } else {
+            showResult(
+              "❌ Session Issue",
+              {
+                message: "Admin session not active or invalid",
+                status: response.status,
+                response: data,
+              },
+              false
+            );
+          }
+        } catch (error) {
+          showResult("❌ Session Test Error", { error: error.message }, false);
+        }
+      }
+
+      async function testApprove() {
+        try {
+          // Get the first request and try to approve it
+          const requestsResponse = await fetch(
+            "../../backend/api/get_recent_requests.php"
+          );
+          const requestsData = await requestsResponse.json();
+
+          if (
+            requestsData.success &&
+            requestsData.requests &&
+            requestsData.requests.length > 0
+          ) {
+            const testRequest = requestsData.requests[0];
+
+            // Try to approve it
+            const approveResponse = await fetch(
+              "../../backend/api/approve_request.php",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-Requested-With": "XMLHttpRequest",
+                },
+                body: JSON.stringify({ id: testRequest.id }),
+                credentials: "same-origin",
+              }
+            );
+
+            const approveData = await approveResponse.json();
+
+            if (approveResponse.ok && approveData.success) {
+              showResult(
+                "✅ Approve Function Works!",
+                {
+                  message: "Request approved successfully",
+                  requestId: testRequest.id,
+                  response: approveData,
+                },
+                true
+              );
+            } else {
+              showResult(
+                "❌ Approve Function Failed",
+                {
+                  status: approveResponse.status,
+                  response: approveData,
+                  requestId: testRequest.id,
+                  suggestion: "Try Quick Login first, then test again",
+                },
+                false
+              );
+            }
+          } else {
+            showResult(
+              "❌ No Requests Found",
+              {
+                message: "No requests available to test",
+                response: requestsData,
+              },
+              false
+            );
+          }
+        } catch (error) {
+          showResult("❌ Approve Test Error", { error: error.message }, false);
+        }
+      }
+
+      async function forceApproveAll() {
+        if (
+          confirm("This will approve ALL requests in the database. Continue?")
+        ) {
+          try {
+            const response = await fetch("../../../fix_request_status.php");
+            const text = await response.text();
+
+            showResult(
+              "⚡ Force Approve Results",
+              {
+                message: "Force approve completed",
+                response:
+                  text.substring(0, 500) + (text.length > 500 ? "..." : ""),
+              },
+              true
+            );
+
+            // Check status after
+            setTimeout(() => {
+              checkRequestStatus();
+            }, 1000);
+          } catch (error) {
+            showResult(
+              "❌ Force Approve Error",
+              { error: error.message },
+              false
+            );
+          }
+        }
+      }
+
+      async function checkRequestStatus() {
+        try {
+          const response = await fetch("../../../debug_requests_status.php");
+          const text = await response.text();
+
+          // Extract key information from the response
+          const lines = text
+            .split("\n")
+            .filter(
+              (line) =>
+                line.includes("Total Requests:") ||
+                line.includes("Approved Requests:") ||
+                line.includes("Today's Approved Requests:")
+            );
+
+          showResult(
+            "📊 Request Status Check",
+            {
+              message: "Current request status",
+              summary: lines.join("\n") || text.substring(0, 300),
+            },
+            true
+          );
+        } catch (error) {
+          showResult("❌ Status Check Error", { error: error.message }, false);
+        }
+      }
+
+      // Auto-test on load
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(() => {
+          testSession();
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>

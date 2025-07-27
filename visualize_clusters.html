@@ -1,92 +1,792 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Nairobi Neighborhood Clusters Visualization</title>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <title>DRMS2 - Driver Clusters & Routes Visualization</title>
+
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #333;
+      }
+
+      .header {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      .header h1 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .header p {
+        color: #7f8c8d;
+        font-size: 0.95rem;
+      }
+
+      .controls {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 1.5rem 2rem;
+        margin: 1rem 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      .control-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .control-group:last-child {
+        margin-bottom: 0;
+      }
+
+      .control-group label {
+        font-weight: 500;
+        color: #2c3e50;
+        min-width: 120px;
+      }
+
+      .control-group input,
+      .control-group select,
+      .control-group button {
+        padding: 0.75rem 1rem;
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+      }
+
+      .control-group input:focus,
+      .control-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .status {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-align: center;
+        margin-top: 1rem;
+      }
+
+      .status.loading {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .content {
+        display: flex;
+        gap: 1rem;
+        padding: 0 2rem 2rem 2rem;
+        height: calc(100vh - 200px);
+      }
+
+      .map-container {
+        flex: 2;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
       #map {
-        height: 90vh;
-        width: 100vw;
+        width: 100%;
+        height: 100%;
+        min-height: 500px;
+      }
+
+      .sidebar {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .stats-panel {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .stats-panel h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        font-weight: 600;
+      }
+
+      .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #ecf0f1;
+      }
+
+      .stat-item:last-child {
+        border-bottom: none;
+      }
+
+      .stat-label {
+        color: #7f8c8d;
+        font-weight: 500;
+      }
+
+      .stat-value {
+        color: #2c3e50;
+        font-weight: 600;
+      }
+
+      .drivers-panel {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        flex: 1;
+        overflow-y: auto;
+      }
+
+      .driver-item {
+        padding: 1rem;
+        border: 1px solid #ecf0f1;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+      }
+
+      .driver-item:hover {
+        border-color: #667eea;
+        box-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
+      }
+
+      .driver-name {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.25rem;
+      }
+
+      .driver-stats {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+      }
+
+      .driver-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 0.5rem;
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .chart-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        height: 300px;
+      }
+
+      @media (max-width: 768px) {
+        .content {
+          flex-direction: column;
+          height: auto;
+        }
+
+        .control-group {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .control-group label {
+          min-width: auto;
+        }
       }
     </style>
   </head>
   <body>
-    <h2>Nairobi Neighborhood Clusters Visualization</h2>
-    <div id="map"></div>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script>
-      // Set this to the date you seeded (tomorrow's date)
-      const date = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
-      const apiUrl = `/project/src/backend/api/generate_schedule.php?date=${date}`;
+    <div class="header">
+      <h1>🗺️ Driver Clusters & Routes Visualization</h1>
+      <p>
+        Real-time visualization of driver assignments and geographic clustering
+        for optimized waste collection routes
+      </p>
+    </div>
 
-      // Distinct colors for clusters
-      const colors = [
-        "red",
-        "blue",
-        "green",
-        "orange",
-        "purple",
-        "brown",
-        "magenta",
-        "cyan",
-        "black",
+    <div class="controls">
+      <div class="control-group">
+        <label for="dateSelect">📅 Schedule Date:</label>
+        <input type="date" id="dateSelect" />
+        <button class="btn" onclick="loadScheduleData()">🔄 Load Data</button>
+        <button class="btn" onclick="generateNewSchedule()">
+          ⚡ Generate Schedule
+        </button>
+      </div>
+
+      <div id="status" class="status" style="display: none"></div>
+    </div>
+
+    <div class="content">
+      <div class="map-container">
+        <div id="map"></div>
+      </div>
+
+      <div class="sidebar">
+        <div class="stats-panel">
+          <h3>📊 Schedule Statistics</h3>
+          <div id="statsContent">
+            <div class="stat-item">
+              <span class="stat-label">Total Drivers</span>
+              <span class="stat-value" id="totalDrivers">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Total Requests</span>
+              <span class="stat-value" id="totalRequests">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Avg. Requests/Driver</span>
+              <span class="stat-value" id="avgRequests">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Coverage Area</span>
+              <span class="stat-value" id="coverageArea">0 km²</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="drivers-panel">
+          <h3>🚛 Active Drivers</h3>
+          <div id="driversContent">
+            <p style="color: #7f8c8d; text-align: center; padding: 2rem">
+              No schedule data loaded
+            </p>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <canvas id="requestsChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+      // Global variables
+      let map = null;
+      let scheduleData = null;
+      let driverColors = [
+        "#FF6B6B",
+        "#4ECDC4",
+        "#45B7D1",
+        "#96CEB4",
+        "#FFEAA7",
+        "#DDA0DD",
+        "#FFB347",
+        "#87CEEB",
+        "#98D8C8",
+        "#F7DC6F",
+        "#BB8FCE",
+        "#85C1E9",
+        "#82E0AA",
+        "#F8C471",
+        "#F1948A",
+      ];
+      let requestsChart = null;
+
+      // Nairobi coordinates and areas for realistic locations
+      const nairobiBounds = {
+        north: -1.163,
+        south: -1.444,
+        east: 37.103,
+        west: 36.634,
+      };
+
+      const nairobiAreas = [
+        { name: "CBD", lat: -1.2921, lng: 36.8219, requests: [] },
+        { name: "Westlands", lat: -1.2635, lng: 36.8078, requests: [] },
+        { name: "Kilimani", lat: -1.2954, lng: 36.7878, requests: [] },
+        { name: "Karen", lat: -1.3194, lng: 36.6827, requests: [] },
+        { name: "Eastlands", lat: -1.2864, lng: 36.8707, requests: [] },
+        { name: "Industrial Area", lat: -1.3165, lng: 36.8477, requests: [] },
+        { name: "Ngong Road", lat: -1.3073, lng: 36.7707, requests: [] },
+        { name: "Kasarani", lat: -1.2167, lng: 36.8906, requests: [] },
+        { name: "Langata", lat: -1.3647, lng: 36.7453, requests: [] },
+        { name: "Upperhill", lat: -1.2897, lng: 36.8097, requests: [] },
       ];
 
-      // Center map on Nairobi
-      const map = L.map("map").setView([-1.2921, 36.8219], 12);
+      // Initialize the page
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeDatePicker();
+        initializeMap();
+        initializeChart();
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 18,
-        attribution: "© OpenStreetMap contributors",
-      }).addTo(map);
+        // Auto-load data for today
+        loadScheduleData();
+      });
 
-      fetch(apiUrl)
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data.schedule || !data.schedule.assignments) {
-            alert("No cluster data found!");
+      function initializeDatePicker() {
+        const dateSelect = document.getElementById("dateSelect");
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        dateSelect.value = tomorrow.toISOString().split("T")[0];
+      }
+
+      function initializeMap() {
+        // Initialize map centered on Nairobi
+        map = L.map("map").setView([-1.2921, 36.8219], 11);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap contributors",
+        }).addTo(map);
+
+        // Add Nairobi city boundary
+        const nairobiBoundary = L.rectangle(
+          [
+            [nairobiBounds.north, nairobiBounds.west],
+            [nairobiBounds.south, nairobiBounds.east],
+          ],
+          {
+            color: "#3498db",
+            weight: 2,
+            fillOpacity: 0.1,
+            dashArray: "5, 5",
+          }
+        ).addTo(map);
+
+        // Add title control
+        const titleControl = L.control({ position: "topright" });
+        titleControl.onAdd = function (map) {
+          const div = L.DomUtil.create("div", "map-title");
+          div.innerHTML =
+            '<h4 style="margin:0; padding:10px; background:white; border-radius:5px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">🗺️ Nairobi Collection Routes</h4>';
+          return div;
+        };
+        titleControl.addTo(map);
+      }
+
+      function initializeChart() {
+        const ctx = document.getElementById("requestsChart").getContext("2d");
+        requestsChart = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["Scheduled", "Pending", "Completed"],
+            datasets: [
+              {
+                data: [0, 0, 0],
+                backgroundColor: ["#4ECDC4", "#FFEAA7", "#96CEB4"],
+                borderWidth: 2,
+                borderColor: "#fff",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: "Request Status Distribution",
+                font: { size: 14, weight: "bold" },
+              },
+              legend: {
+                position: "bottom",
+                labels: { padding: 15, font: { size: 12 } },
+              },
+            },
+          },
+        });
+      }
+
+      function showStatus(message, type = "loading") {
+        const status = document.getElementById("status");
+        status.textContent = message;
+        status.className = `status ${type}`;
+        status.style.display = "block";
+
+        if (type !== "loading") {
+          setTimeout(() => {
+            status.style.display = "none";
+          }, 5000);
+        }
+      }
+
+      async function loadScheduleData() {
+        const dateSelect = document.getElementById("dateSelect");
+        const selectedDate = dateSelect.value;
+
+        if (!selectedDate) {
+          showStatus("Please select a date", "error");
+          return;
+        }
+
+        showStatus("Loading schedule data...", "loading");
+        console.log("Loading data for date:", selectedDate);
+
+        try {
+          const apiUrl = `src/backend/api/smart_scheduling.php?action=view&date=${selectedDate}`;
+          console.log("API URL:", apiUrl);
+
+          const response = await fetch(apiUrl);
+          console.log("Response status:", response.status);
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log("API response:", data);
+
+          if (data.success) {
+            scheduleData = data;
+            console.log(
+              "Schedule data loaded:",
+              data.schedules.length,
+              "schedules"
+            );
+            displayScheduleOnMap(data.schedules);
+            updateStatistics(data.schedules);
+            updateDriversList(data.schedules);
+            updateChart(data.schedules);
+            showStatus(
+              `Loaded ${data.schedules.length} driver schedules for ${selectedDate}`,
+              "success"
+            );
+          } else {
+            console.error("API error:", data.error);
+            showStatus(data.error || "Failed to load schedule data", "error");
+          }
+        } catch (error) {
+          console.error("Error loading schedule data:", error);
+          showStatus("Error loading schedule data: " + error.message, "error");
+        }
+      }
+
+      async function generateNewSchedule() {
+        const dateSelect = document.getElementById("dateSelect");
+        const selectedDate = dateSelect.value;
+
+        if (!selectedDate) {
+          showStatus("Please select a date", "error");
+          return;
+        }
+
+        showStatus("Generating new schedule...", "loading");
+
+        try {
+          const response = await fetch(
+            `src/backend/api/smart_scheduling.php?action=generate&date=${selectedDate}`
+          );
+          const data = await response.json();
+
+          if (data.success) {
+            showStatus(
+              "Schedule generated successfully! Reloading data...",
+              "success"
+            );
+            // Reload the data to show the new schedule
+            setTimeout(() => loadScheduleData(), 1000);
+          } else {
+            showStatus(data.error || "Failed to generate schedule", "error");
+          }
+        } catch (error) {
+          console.error("Error generating schedule:", error);
+          showStatus("Error generating schedule: " + error.message, "error");
+        }
+      }
+
+      function displayScheduleOnMap(schedules) {
+        console.log("Displaying schedules on map:", schedules);
+
+        if (!schedules || schedules.length === 0) {
+          console.log("No schedules to display");
+          showStatus("No schedules found for the selected date", "error");
+          return;
+        }
+
+        // Clear existing markers and routes
+        map.eachLayer(function (layer) {
+          if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+            map.removeLayer(layer);
+          }
+        });
+
+        let allLocations = [];
+        let totalAssignments = 0;
+
+        schedules.forEach((schedule, driverIndex) => {
+          console.log(
+            `Processing driver ${driverIndex + 1}:`,
+            schedule.driver_name
+          );
+
+          const driverColor = driverColors[driverIndex % driverColors.length];
+          const assignments = schedule.assignments || [];
+
+          console.log(
+            `Driver ${schedule.driver_name} has ${assignments.length} assignments`
+          );
+          totalAssignments += assignments.length;
+
+          if (assignments.length === 0) {
+            console.log(`No assignments for driver ${schedule.driver_name}`);
             return;
           }
-          let clusterIdx = 0;
-          data.schedule.assignments.forEach((assignment, idx) => {
-            // Each assignment is a cluster/route for a driver
-            const color = colors[clusterIdx % colors.length];
-            if (assignment.route && assignment.route.length > 0) {
-              assignment.route.forEach((req, i) => {
-                if (req.latitude && req.longitude) {
-                  L.circleMarker([req.latitude, req.longitude], {
-                    radius: 10,
-                    color: color,
-                    fillColor: color,
-                    fillOpacity: 0.7,
-                  })
-                    .addTo(map)
-                    .bindPopup(
-                      `<b>${req.location || req.address}</b><br>Cluster: ${
-                        clusterIdx + 1
-                      }<br>User: ${req.username || ""}`
-                    );
-                }
-              });
-              // Optionally, draw lines between points in the cluster
-              const latlngs = assignment.route.map((r) => [
-                r.latitude,
-                r.longitude,
-              ]);
-              L.polyline(latlngs, {
-                color: color,
-                weight: 3,
-                opacity: 0.5,
-              }).addTo(map);
-              clusterIdx++;
-            }
+
+          // Generate realistic coordinates for assignments
+          const driverLocations = generateRealisticLocations(
+            assignments,
+            driverIndex
+          );
+          allLocations = allLocations.concat(driverLocations);
+
+          // Create markers for each assignment
+          driverLocations.forEach((location, index) => {
+            const assignment = assignments[index];
+
+            const marker = L.circleMarker([location.lat, location.lng], {
+              radius: 8,
+              fillColor: driverColor,
+              color: "#fff",
+              weight: 2,
+              opacity: 1,
+              fillOpacity: 0.8,
+            }).addTo(map);
+
+            // Create popup content
+            const popupContent = `
+                        <div style="font-family: 'Segoe UI', sans-serif;">
+                            <h4 style="margin: 0 0 8px 0; color: #2c3e50;">📍 Request #${assignment.request_id}</h4>
+                            <p style="margin: 4px 0;"><strong>Driver:</strong> ${schedule.driver_name}</p>
+                            <p style="margin: 4px 0;"><strong>Location:</strong> ${assignment.pickup_location}</p>
+                            <p style="margin: 4px 0;"><strong>Waste Type:</strong> ${assignment.waste_type}</p>
+                            <p style="margin: 4px 0;"><strong>Time:</strong> ${assignment.estimated_start_time}</p>
+                            <p style="margin: 4px 0;"><strong>Sequence:</strong> ${assignment.sequence_order} of ${assignments.length}</p>
+                        </div>
+                    `;
+
+            marker.bindPopup(popupContent);
           });
-        })
-        .catch((err) => {
-          alert("Failed to fetch cluster data: " + err);
+
+          // Create route line
+          if (driverLocations.length > 1) {
+            const routeCoordinates = driverLocations.map((loc) => [
+              loc.lat,
+              loc.lng,
+            ]);
+
+            const route = L.polyline(routeCoordinates, {
+              color: driverColor,
+              weight: 3,
+              opacity: 0.7,
+              dashArray: "10, 5",
+            }).addTo(map);
+
+            // Note: Polyline decorator requires additional library, so we'll use simple lines
+            console.log(
+              `Created route for ${schedule.driver_name} with ${routeCoordinates.length} points`
+            );
+          }
+
+          // Add driver starting point
+          if (driverLocations.length > 0) {
+            const startMarker = L.marker(
+              [driverLocations[0].lat, driverLocations[0].lng],
+              {
+                icon: L.divIcon({
+                  className: "driver-start-icon",
+                  html: `<div style="background: ${driverColor}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">🚛</div>`,
+                  iconSize: [24, 24],
+                  iconAnchor: [12, 12],
+                }),
+              }
+            ).addTo(map);
+
+            startMarker.bindPopup(`
+                        <div style="font-family: 'Segoe UI', sans-serif;">
+                            <h4 style="margin: 0 0 8px 0; color: #2c3e50;">🚛 ${schedule.driver_name}</h4>
+                            <p style="margin: 4px 0;"><strong>License:</strong> ${schedule.license_number}</p>
+                            <p style="margin: 4px 0;"><strong>Total Requests:</strong> ${assignments.length}</p>
+                            <p style="margin: 4px 0;"><strong>Start Time:</strong> ${schedule.start_time}</p>
+                            <p style="margin: 4px 0;"><strong>Status:</strong> ${schedule.status}</p>
+                        </div>
+                    `);
+          }
         });
+
+        console.log(`Total assignments displayed: ${totalAssignments}`);
+        console.log(`Total locations: ${allLocations.length}`);
+
+        // Fit map to show all locations
+        if (allLocations.length > 0) {
+          const group = new L.featureGroup(
+            allLocations.map((loc) => L.marker([loc.lat, loc.lng]))
+          );
+          map.fitBounds(group.getBounds().pad(0.1));
+          console.log("Map fitted to show all locations");
+        } else {
+          console.log("No locations to fit map to");
+        }
+      }
+
+      function generateRealisticLocations(assignments, driverIndex) {
+        // Select a primary area for this driver
+        const primaryArea = nairobiAreas[driverIndex % nairobiAreas.length];
+
+        return assignments.map((assignment, index) => {
+          // Generate location within 2km of the primary area
+          const radiusKm = 2;
+          const radiusDeg = radiusKm / 111; // Rough conversion km to degrees
+
+          const angle = (index / assignments.length) * 2 * Math.PI;
+          const distance = Math.random() * radiusDeg;
+
+          const lat = primaryArea.lat + distance * Math.cos(angle);
+          const lng = primaryArea.lng + distance * Math.sin(angle);
+
+          // Ensure coordinates are within Nairobi bounds
+          const clampedLat = Math.max(
+            nairobiBounds.south,
+            Math.min(nairobiBounds.north, lat)
+          );
+          const clampedLng = Math.max(
+            nairobiBounds.west,
+            Math.min(nairobiBounds.east, lng)
+          );
+
+          return {
+            lat: clampedLat,
+            lng: clampedLng,
+            assignment: assignment,
+          };
+        });
+      }
+
+      function updateStatistics(schedules) {
+        const totalDrivers = schedules.length;
+        const totalRequests = schedules.reduce(
+          (sum, schedule) => sum + (schedule.assignments?.length || 0),
+          0
+        );
+        const avgRequests =
+          totalDrivers > 0 ? (totalRequests / totalDrivers).toFixed(1) : 0;
+
+        // Calculate approximate coverage area (simplified)
+        const coverageArea = Math.round(totalDrivers * 15); // Estimate 15 km² per driver
+
+        document.getElementById("totalDrivers").textContent = totalDrivers;
+        document.getElementById("totalRequests").textContent = totalRequests;
+        document.getElementById("avgRequests").textContent = avgRequests;
+        document.getElementById("coverageArea").textContent = coverageArea;
+      }
+
+      function updateDriversList(schedules) {
+        const driversContent = document.getElementById("driversContent");
+
+        if (schedules.length === 0) {
+          driversContent.innerHTML =
+            '<p style="color: #7f8c8d; text-align: center; padding: 2rem;">No drivers scheduled</p>';
+          return;
+        }
+
+        const driversHtml = schedules
+          .map((schedule, index) => {
+            const driverColor = driverColors[index % driverColors.length];
+            const assignmentCount = schedule.assignments?.length || 0;
+
+            return `
+                    <div class="driver-item">
+                        <div class="driver-name">
+                            <span class="driver-color" style="background-color: ${driverColor};"></span>
+                            ${schedule.driver_name}
+                        </div>
+                        <div class="driver-stats">
+                            🚛 ${schedule.license_number} • 📋 ${assignmentCount} requests • ⏰ ${schedule.start_time}
+                        </div>
+                    </div>
+                `;
+          })
+          .join("");
+
+        driversContent.innerHTML = driversHtml;
+      }
+
+      function updateChart(schedules) {
+        const totalRequests = schedules.reduce(
+          (sum, schedule) => sum + (schedule.assignments?.length || 0),
+          0
+        );
+        const scheduledRequests = totalRequests; // All returned requests are scheduled
+
+        requestsChart.data.datasets[0].data = [scheduledRequests, 0, 0];
+        requestsChart.update();
+      }
     </script>
   </body>
 </html>

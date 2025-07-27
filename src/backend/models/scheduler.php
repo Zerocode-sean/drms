@@ -82,7 +82,7 @@ class Scheduler {
                 FROM requests1 r 
                 JOIN users u ON r.user_id = u.id 
                 WHERE r.preferred_date = ?
-                AND r.status = 'Pending'
+                AND r.status IN ('Pending', 'Approved')
                 ORDER BY r.preferred_date ASC";
         
         $stmt = $this->conn->prepare($sql);
@@ -191,14 +191,11 @@ class Scheduler {
     
     /**
      * Check if two requests have compatible time preferences
+     * Since we only have dates, we'll consider all requests on the same date as compatible
      */
     private function isTimeCompatible($request1, $request2) {
-        $time1 = strtotime($request1['preferred_date']);
-        $time2 = strtotime($request2['preferred_date']);
-        
-        // Allow 2-hour window for compatibility
-        $timeDiff = abs($time1 - $time2) / 3600;
-        return $timeDiff <= 2;
+        // Since preferred_date is just a date (no time), all requests on the same date are compatible
+        return $request1['preferred_date'] === $request2['preferred_date'];
     }
     
     /**
@@ -230,13 +227,12 @@ class Scheduler {
     
     /**
      * Get average preferred time for a cluster
+     * Since preferred_date is just a date, we'll default to morning (10:00)
      */
     private function getAveragePreferredTime($cluster) {
-        $totalTime = 0;
-        foreach ($cluster as $request) {
-            $totalTime += strtotime($request['preferred_date']);
-        }
-        return date('H:i:s', $totalTime / count($cluster));
+        // For now, default to 10:00 AM since we only have dates, not times
+        // In the future, this could be enhanced to use a preferred_time field
+        return '10:00:00';
     }
     
     /**
@@ -281,10 +277,10 @@ class Scheduler {
      * Get available drivers
      */
     private function getAvailableDrivers() {
-        $sql = "SELECT id, name, phone, vehicle_type, capacity 
+        $sql = "SELECT id, name, phone, vehicle_number as vehicle_type, 'normal' as capacity 
                 FROM drivers 
-                WHERE status = 'active' 
-                ORDER BY current_load ASC";
+                WHERE status = 'available' 
+                ORDER BY id ASC";
         
         $result = $this->conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);

@@ -1,3 +1,15 @@
+
+// Environment-aware base path detection
+function getBasePath() {
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+    return isLocalhost ? '/project' : '';
+}
+
+function getApiPath(endpoint) {
+    return getBasePath() + '/src/backend/api/' + endpoint;
+}
+
 console.log("registration js loaded ");
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -104,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // AJAX call to backend
-    fetch("../../backend/api/register.php", {
+    fetch(getApiPath("register.php"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, email, password }),

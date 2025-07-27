@@ -2,6 +2,8 @@
 // Include performance optimizations
 require_once __DIR__ . '/../../backend/config/performance.php';
 require_once __DIR__ . '/../../backend/config/session.php';
+// Include asset helper for environment-aware paths
+require_once __DIR__ . '/../../backend/config/asset_helper.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: login.php');
@@ -14,10 +16,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRMS Admin Dashboard</title>
-    <link rel="stylesheet" href="/src/frontend/css/admin.css">
-    <link rel="icon" href="/src/frontend/images/logo.png">
+    <link rel="stylesheet" href="<?php echo cssPath('admin.css'); ?>">
+    <link rel="icon" href="<?php echo logoPath(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="/src/frontend/js/admin.js" defer></script>
+    <script src="<?php echo jsPath('admin.js'); ?>" defer></script>
 </head>
 <body>
     <div class="container">
@@ -28,6 +30,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                 <ul>
                     <li class="active"><a href="admin.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                     <li><a href="admin_requests.php"><i class="fas fa-file-alt"></i>Request</a></li>
+                    <li><a href="admin_smart_scheduling.php"><i class="fas fa-route"></i> Smart Scheduling</a></li>
                     <li><a href="admin_users.php"><i class="fas fa-users"></i> Users</a></li>
                     <li><a href="admin_drivers.php"><i class="fas fa-truck"></i> Drivers</a></li>
                     <li><a href="admin_reports.php"><i class="fas fa-chart-bar"></i> Reports</a></li>
@@ -50,28 +53,37 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                 <h1>Admin Dashboard</h1>
                 <div class="user-info">
                     <i class="fas fa-bell"></i>
-                    <img src="/src/frontend/images/logo.png" alt="Admin Avatar">
+                    <img src="<?php echo logoPath(); ?>" alt="Admin Avatar">
                 </div>
             </header>
             <!-- Dashboard Metrics -->
             <section class="metrics">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 style="margin: 0;">Dashboard Overview</h2>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span id="metrics-status" style="font-size: 12px; color: #666;">Last updated: Loading...</span>
+                        <button id="refresh-metrics" style="padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
                 <div class="card">
-                    <h3 id="total-requests">250</h3>
+                    <h3 id="total-requests">Loading...</h3>
                     <p>Total Requests</p>
                     <i class="fas fa-file-alt"></i>
                 </div>
                 <div class="card">
-                    <h3 id="pending-approvals">15</h3>
+                    <h3 id="pending-approvals">Loading...</h3>
                     <p>Pending Approvals</p>
                     <i class="fas fa-hourglass-half"></i>
                 </div>
                 <div class="card">
-                    <h3 id="active-drivers">50</h3>
+                    <h3 id="active-drivers">Loading...</h3>
                     <p>Active Drivers</p>
                     <i class="fas fa-truck"></i>
                 </div>
                 <div class="card">
-                    <h3 id="active-users">120</h3>
+                    <h3 id="active-users">Loading...</h3>
                     <p>Active Users</p>
                     <i class="fas fa-users"></i>
                 </div>
@@ -411,12 +423,89 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
             });
     }
     fetchAndRenderRequestsSummary();
+    
+    // Fetch and update dashboard metrics
+    function fetchAndUpdateDashboardMetrics() {
+        const statusElement = document.getElementById('metrics-status');
+        const refreshButton = document.getElementById('refresh-metrics');
+        
+        // Show loading state
+        if (statusElement) statusElement.textContent = 'Updating...';
+        if (refreshButton) {
+            refreshButton.disabled = true;
+            refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+        }
+        
+        fetch('../../backend/api/get_dashboard_metrics.php')
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error fetching metrics:', data.error);
+                    if (statusElement) statusElement.textContent = 'Error loading metrics';
+                    return;
+                }
+                
+                // Update dashboard metric cards with animation
+                const metrics = [
+                    { id: 'total-requests', value: data.total_requests || 0 },
+                    { id: 'pending-approvals', value: data.pending_approvals || 0 },
+                    { id: 'active-drivers', value: data.active_drivers || 0 },
+                    { id: 'active-users', value: data.active_users || 0 }
+                ];
+                
+                metrics.forEach(metric => {
+                    const element = document.getElementById(metric.id);
+                    if (element) {
+                        // Add brief flash animation to show update
+                        element.style.transition = 'all 0.3s ease';
+                        element.style.transform = 'scale(1.1)';
+                        element.style.color = '#007bff';
+                        element.textContent = metric.value;
+                        
+                        setTimeout(() => {
+                            element.style.transform = 'scale(1)';
+                            element.style.color = '';
+                        }, 300);
+                    }
+                });
+                
+                // Update status
+                if (statusElement) {
+                    const now = new Date();
+                    statusElement.textContent = `Last updated: ${now.toLocaleTimeString()}`;
+                }
+                
+                console.log('Dashboard metrics updated:', data);
+            })
+            .catch(error => {
+                console.error('Error fetching dashboard metrics:', error);
+                if (statusElement) statusElement.textContent = 'Connection error';
+            })
+            .finally(() => {
+                // Reset refresh button
+                if (refreshButton) {
+                    refreshButton.disabled = false;
+                    refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                }
+            });
+    }
+    
+    // Initial metrics fetch
+    fetchAndUpdateDashboardMetrics();
+    
+    // Refresh metrics every 10 seconds for better responsiveness after approvals
+    setInterval(fetchAndUpdateDashboardMetrics, 10000);
+    
     // Handle logout button click
     document.getElementById('logout-btn').addEventListener('click', function() {
         if (confirm('Are you sure you want to log out?')) {
             window.location.href = 'logout.php';
         }
     });
+    // Refresh metrics on button click
+    document.getElementById('refresh-metrics').addEventListener('click', function() {
+        fetchAndUpdateDashboardMetrics();
+    });
     </script>
 </body>
-</html> 
+</html>

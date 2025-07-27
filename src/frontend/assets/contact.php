@@ -1,11 +1,15 @@
+<?php
+// Include asset helper for environment-aware paths
+require_once __DIR__ . '/../../backend/config/asset_helper.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRWMS - Contact Us</title>
-    <link rel="stylesheet" href="/src/frontend/css/contact.css">
-    <link rel="icon" href="/src/frontend/images/logo.png">
+    <link rel="stylesheet" href="<?php echo cssPath('contact.css'); ?>">
+    <link rel="icon" href="<?php echo logoPath(); ?>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -163,6 +167,6 @@
         </div>
     </div>
     
-    <script src="/src/frontend/js/contact.js"></script>
+    <script src="<?php echo jsPath('contact.js'); ?>"></script>
 </body>
 </html>

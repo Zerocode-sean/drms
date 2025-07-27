@@ -10,13 +10,13 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 header('Content-Type: application/json');
-require_once __DIR__ . '/../config/db_config.php';
 
 $user_id = $_SESSION['user_id'];
 $role = $_SESSION['role'];
 
 try {
-    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    // Create database connection for drms2
+    $conn = new mysqli("localhost", "root", "", "drms2");
     
     if ($conn->connect_error) {
         throw new Exception("Connection failed: " . $conn->connect_error);
@@ -24,9 +24,9 @@ try {
     
     if ($role === 'admin') {
         // Get requests with user information for admin
-        $sql = "SELECT r.id, r.location, r.waste_type, r.preferred_date, r.status, r.notes, r.address_details, r.created_at,
+        $sql = "SELECT r.id, r.location, r.waste_type, r.preferred_date, r.status, r.notes, r.address_details, r.created_at, r.document,
                        u.username, u.email, u.phone
-                FROM requests1 r
+                FROM requests r
                 JOIN users u ON r.user_id = u.id
                 ORDER BY r.created_at DESC 
                 LIMIT 20";
@@ -42,7 +42,7 @@ try {
             $requests[] = [
                 'id' => $row['id'],
                 'username' => $row['username'],
-                'document' => $row['waste_type'] ?: 'Waste Collection',
+                'document' => $row['document'] ?: ($row['waste_type'] ?: 'Waste Collection'),
                 'status' => $row['status'],
                 'location' => $row['location'],
                 'preferred_date' => $row['preferred_date'],
@@ -56,8 +56,8 @@ try {
         
     } else if ($role === 'resident') {
         // Get requests for specific user
-        $sql = "SELECT id, location, waste_type, preferred_date, status, notes, created_at
-                FROM requests1 
+        $sql = "SELECT id, location, waste_type, preferred_date, status, notes, created_at, document
+                FROM requests 
                 WHERE user_id = ? 
                 ORDER BY created_at DESC 
                 LIMIT 20";
@@ -71,7 +71,7 @@ try {
         while ($row = $result->fetch_assoc()) {
             $requests[] = [
                 'id' => $row['id'],
-                'document' => $row['waste_type'] ?: 'Waste Collection',
+                'document' => $row['document'] ?: ($row['waste_type'] ?: 'Waste Collection'),
                 'status' => $row['status'],
                 'location' => $row['location'],
                 'preferred_date' => $row['preferred_date'],

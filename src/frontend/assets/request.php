@@ -1,4 +1,6 @@
 <?php
+// Include asset helper for environment-aware paths
+require_once __DIR__ . '/../../backend/config/asset_helper.php';
 session_start();
 
 // Check authentication - temporarily bypassed for development
@@ -596,7 +598,7 @@ $role = $_SESSION['role'] ?? 'resident';
     <nav class="navbar">
         <div class="nav-container">
             <div class="navbar-brand">
-                <img src="/src/frontend/images/logo.png" alt="DRMS Logo" class="logo-img">
+                <img src="<?php echo logoPath(); ?>" alt="DRMS Logo" class="logo-img">
                 <span class="brand-text">DRMS</span>
             </div>
             <div class="nav-links">

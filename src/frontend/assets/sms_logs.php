@@ -1,4 +1,6 @@
 <?php
+// Include asset helper for environment-aware paths
+require_once __DIR__ . '/../../backend/config/asset_helper.php';
 session_start();
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'driver'])) {
     header('Location: login.php');
@@ -21,8 +23,8 @@ header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>SMS Logs - DRMS</title>
-    <link rel="stylesheet" href="/src/frontend/css/drm-styles.css">
-    <link rel="icon" href="/src/frontend/images/logo.png">
+    <link rel="stylesheet" href="<?php echo cssPath('drm-styles.css'); ?>">
+    <link rel="icon" href="<?php echo logoPath(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         .logs-container {
@@ -201,17 +203,23 @@ header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <img src="/src/frontend/images/logo.png" alt="DRMS Logo" class="logo-img">
+                <img src="<?php echo logoPath(); ?>" alt="DRMS Logo" class="logo-img">
                 <h2>DRMS</h2>
             </div>
             <ul class="nav-menu">
-                <?php if ($_SESSION['role'] === 'driver'): ?>
+                <?php
+// Include asset helper for environment-aware paths
+require_once __DIR__ . '/../../backend/config/asset_helper.php'; if ($_SESSION['role'] === 'driver'): ?>
                     <li><a href="driver.php" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                     <li><a href="driver_send_sms.php" class="nav-link"><i class="fas fa-sms"></i> Send SMS</a></li>
-                <?php else: ?>
+                <?php
+// Include asset helper for environment-aware paths
+require_once __DIR__ . '/../../backend/config/asset_helper.php'; else: ?>
                     <li><a href="admin.php" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                     <li><a href="admin_send_sms.php" class="nav-link"><i class="fas fa-sms"></i> Send SMS</a></li>
-                <?php endif; ?>
+                <?php
+// Include asset helper for environment-aware paths
+require_once __DIR__ . '/../../backend/config/asset_helper.php'; endif; ?>
                 <li><a href="home.php" class="nav-link"><i class="fas fa-home"></i> Home</a></li>
                 <li><a href="#" onclick="confirmLogout()" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
@@ -228,7 +236,9 @@ header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
             <div class="info-card">
                 <h3><i class="fas fa-satellite-dish"></i> BlessedText SMS Service</h3>
                 <p>All SMS messages are sent via <strong>BlessedText API</strong> to real phone numbers. Messages are logged here for tracking and accountability.</p>
-                <small class="text-muted">Last updated: <?php echo date('Y-m-d H:i:s'); ?></small>
+                <small class="text-muted">Last updated: <?php
+// Include asset helper for environment-aware paths
+require_once __DIR__ . '/../../backend/config/asset_helper.php'; echo date('Y-m-d H:i:s'); ?></small>
             </div>
             
             <div class="logs-actions">

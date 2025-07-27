@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../../backend/config/session.php';
+// Include asset helper for environment-aware paths
+require_once __DIR__ . '/../../backend/config/asset_helper.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['logged_in']) || !$_SESSION['logged_in']) {
@@ -27,8 +29,8 @@ $role = $_SESSION['role'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRMS - Digital Request Waste Management System</title>
-    <link rel="stylesheet" href="/src/frontend/css/drm-styles.css">
-    <link rel="icon" href="/src/frontend/images/logo.png">
+    <link rel="stylesheet" href="<?php echo cssPath('drm-styles.css'); ?>">
+    <link rel="icon" href="<?php echo logoPath(); ?>">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -37,7 +39,7 @@ $role = $_SESSION['role'];
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <img src="/src/frontend/images/logo.png" alt="DRMS Logo" class="logo-img">
+                <img src="<?php echo logoPath(); ?>" alt="DRMS Logo" class="logo-img">
                 <h2>DRMS</h2>
             </div>
             <ul class="nav-menu">
@@ -280,7 +282,7 @@ $role = $_SESSION['role'];
         </div>
     </footer>
 
-    <script src="/src/frontend/js/drm-script.js"></script>
+    <script src="<?php echo jsPath('drm-script.js'); ?>"></script>
     <script>
         function logout() {
             fetch('../../backend/api/logout.php', {

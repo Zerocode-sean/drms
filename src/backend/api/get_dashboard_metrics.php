@@ -6,13 +6,17 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 header('Content-Type: application/json');
-require_once '../config/db_config.php';
+
 try {
+    // Create PDO connection for drms2 database
+    $pdo = new PDO("mysql:host=localhost;dbname=drms2", "root", "");
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
     // Total requests
-    $stmt = $pdo->query('SELECT COUNT(*) FROM requests1');
+    $stmt = $pdo->query('SELECT COUNT(*) FROM requests');
     $total_requests = $stmt->fetchColumn();
-    // Pending approvals
-    $stmt = $pdo->query("SELECT COUNT(*) FROM requests1 WHERE status = 'Pending'");
+    // Pending approvals - check for multiple possible pending status values
+    $stmt = $pdo->query("SELECT COUNT(*) FROM requests WHERE status IN ('Pending', 'pending', 'submitted', 'new', 'waiting')");
     $pending_approvals = $stmt->fetchColumn();
     // Active drivers
     $stmt = $pdo->query('SELECT COUNT(*) FROM drivers WHERE is_active = 1');

@@ -1,4 +1,6 @@
 <?php
+// Include asset helper for environment-aware paths
+require_once __DIR__ . '/../../backend/config/asset_helper.php';
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: login.php');
@@ -11,9 +13,41 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRMS Admin Requests</title>
-    <link rel="stylesheet" href="/src/frontend/css/admin.css">
-    <link rel="icon" href="/src/frontend/images/logo.png">
+    <link rel="stylesheet" href="<?php echo cssPath('admin.css'); ?>">
+    <link rel="icon" href="<?php echo logoPath(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            margin: 100px auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+        }
+        .close:hover {
+            color: #000;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -24,12 +58,14 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                 <ul>
                     <li><a href="admin.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                     <li class="active"><a href="admin_requests.php"><i class="fas fa-file-alt"></i> Request</a></li>
+                    <li><a href="admin_smart_scheduling.php"><i class="fas fa-route"></i> Smart Scheduling</a></li>
                     <li><a href="admin_users.php"><i class="fas fa-users"></i> Users</a></li>
                     <li><a href="admin_drivers.php"><i class="fas fa-truck"></i> Drivers</a></li>
                     <li><a href="admin_reports.php"><i class="fas fa-chart-bar"></i> Reports</a></li>
                     <li><a href="admin_notifications.php"><i class="fas fa-bell"></i> Notifications</a></li>
                     <li><a href="admin_profile.php"><i class="fas fa-user"></i> Profile</a></li>
                     <li><a href="admin_settings.php"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="admin_send_sms.php"><i class="fas fa-sms"></i> Send SMS</a></li>
                     <li id="logout-btn" style="cursor:pointer;"><i class="fas fa-sign-out-alt"></i> Logout</li>
                 </ul>
             </nav>
@@ -39,7 +75,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
             <header>
                 <h1>Requests</h1>
                 <div class="user-info">
-                    <img src="/src/frontend/images/logo.png" alt="Admin Avatar">
+                    <img src="<?php echo logoPath(); ?>" alt="Admin Avatar">
                 </div>
             </header>
             <section class="admin-requests">
@@ -63,9 +99,17 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                 <div id="assign-modal" class="modal" style="display:none;">
                     <div class="modal-content">
                         <span class="close" onclick="closeAssignModal()">&times;</span>
-                        <h3>Assign Driver</h3>
-                        <select id="driver-select"></select>
-                        <button id="assign-confirm-btn">Assign</button>
+                        <h3>Assign Driver to Request</h3>
+                        <div style="margin: 15px 0;">
+                            <label for="driver-select" style="display: block; margin-bottom: 5px; font-weight: bold;">Select Driver:</label>
+                            <select id="driver-select" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="">Loading drivers...</option>
+                            </select>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <button id="assign-confirm-btn" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Assign Driver</button>
+                            <button onclick="closeAssignModal()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-left: 10px;">Cancel</button>
+                        </div>
                     </div>
                 </div>
                 <div id="view-modal" class="modal" style="display:none;">
@@ -155,26 +199,77 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
         fetch('../../backend/api/get_available_drivers.php')
             .then(res => res.json())
             .then(data => {
+                console.log('Drivers API response:', data);
                 const select = document.getElementById('driver-select');
                 select.innerHTML = '';
-                (data.drivers || []).forEach(d => {
+                
+                if (data.success && data.drivers && Array.isArray(data.drivers)) {
+                    if (data.drivers.length === 0) {
+                        const opt = document.createElement('option');
+                        opt.value = '';
+                        opt.textContent = 'No drivers available';
+                        select.appendChild(opt);
+                    } else {
+                        data.drivers.forEach(d => {
+                            const opt = document.createElement('option');
+                            opt.value = d.id;
+                            opt.textContent = `${d.name} (${d.email}) - Capacity: ${d.available_capacity}/${d.capacity}`;
+                            select.appendChild(opt);
+                        });
+                    }
+                } else {
                     const opt = document.createElement('option');
-                    opt.value = d.id;
-                    opt.textContent = d.name + ' (' + d.email + ')';
+                    opt.value = '';
+                    opt.textContent = 'Error loading drivers';
                     select.appendChild(opt);
-                });
+                    console.error('Drivers API error:', data);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching drivers:', error);
+                const select = document.getElementById('driver-select');
+                select.innerHTML = '<option value="">Error loading drivers</option>';
             });
     }
     document.getElementById('assign-confirm-btn').onclick = function() {
         const driverId = document.getElementById('driver-select').value;
-        if (!driverId) return alert('Select a driver');
+        if (!driverId) {
+            alert('Please select a driver');
+            return;
+        }
+        
+        // Disable button to prevent double submission
+        const btn = document.getElementById('assign-confirm-btn');
+        btn.disabled = true;
+        btn.textContent = 'Assigning...';
+        
         fetch('../../backend/api/assign_request.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ request_id: currentAssignRequestId, driver_id: driverId })
-        }).then(res => res.json()).then(() => {
-            closeAssignModal();
-            fetchAndRenderRequests();
+            body: JSON.stringify({ 
+                request_id: parseInt(currentAssignRequestId), 
+                driver_id: parseInt(driverId) 
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log('Assignment response:', data);
+            if (data.success) {
+                alert('Driver assigned successfully!');
+                closeAssignModal();
+                fetchAndRenderRequests();
+            } else {
+                alert('Assignment failed: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Assignment error:', error);
+            alert('Assignment failed: ' + error.message);
+        })
+        .finally(() => {
+            // Re-enable button
+            btn.disabled = false;
+            btn.textContent = 'Assign';
         });
     };
     function closeAssignModal() {

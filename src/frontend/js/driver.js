@@ -1,3 +1,15 @@
+
+// Environment-aware base path detection
+function getBasePath() {
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+    return isLocalhost ? '/project' : '';
+}
+
+function getApiPath(endpoint) {
+    return getBasePath() + '/src/backend/api/' + endpoint;
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   initializeMap();
   fetchTasks();
@@ -23,7 +35,7 @@ function initializeMap() {
 }
 
 function fetchTasks() {
-  fetch("../../backend/api/get_driver_tasks.php")
+  fetch(getApiPath("get_driver_tasks.php"))
     .then((res) => res.json())
     .then((tasks) => renderTasks(tasks));
 }
@@ -112,7 +124,7 @@ function addTaskButtonListeners() {
 }
 
 window.updateStatus = function (requestId, status) {
-  fetch("../../backend/api/update_request_status.php", {
+  fetch(getApiPath("update_request_status.php"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ request_id: requestId, status }),
@@ -134,7 +146,7 @@ window.updateStatus = function (requestId, status) {
 
 window.notifyMissed = function (requestId, userPhone) {
   // Call notification and SMS endpoints
-  fetch("../../backend/api/send_notification.php", {
+  fetch(getApiPath("send_notification.php"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ request_id: requestId, type: "missed" }),
@@ -151,7 +163,7 @@ window.notifyMissed = function (requestId, userPhone) {
       console.error("Notification error:", error);
     });
 
-  fetch("../../backend/api/send_sms.php", {
+  fetch(getApiPath("send_sms.php"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -561,7 +573,7 @@ window.sendCustomNotification = function () {
   if (sendInApp) {
     expectedCount++;
     promises.push(
-      fetch("../../backend/api/send_notification.php", {
+      fetch(getApiPath("send_notification.php"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -594,7 +606,7 @@ window.sendCustomNotification = function () {
   ) {
     expectedCount++;
     promises.push(
-      fetch("../../backend/api/send_sms.php", {
+      fetch(getApiPath("send_sms.php"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

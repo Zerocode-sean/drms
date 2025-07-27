@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DRMS Admin - Smart Scheduling Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .btn {
+        padding: 10px 20px;
+        margin: 5px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .btn:hover {
+        background: #0056b3;
+      }
+      .success {
+        color: green;
+      }
+      .error {
+        color: red;
+      }
+      .result {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 3px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧪 Smart Scheduling - Production Test</h1>
+
+    <div>
+      <label>Date: </label>
+      <input type="date" id="test-date" value="2025-07-27" />
+      <button class="btn" onclick="testGenerate()">🚀 Test Generate</button>
+      <button class="btn" onclick="testView()">👁️ Test View</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+      function showResult(title, data, isSuccess = true) {
+        const results = document.getElementById("results");
+        const className = isSuccess ? "success" : "error";
+        results.innerHTML = `
+                <div class="result">
+                    <h3 class="${className}">${title}</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+      }
+
+      async function testGenerate() {
+        const date = document.getElementById("test-date").value;
+        console.log("Testing generate for:", date);
+
+        try {
+          const response = await fetch(
+            `../backend/api/smart_scheduling.php?action=generate&date=${date}`
+          );
+          const data = await response.json();
+
+          console.log("Generate response:", data);
+
+          if (data.success) {
+            showResult(
+              `✅ Generate Success - ${data.drivers_used || 0} drivers, ${
+                data.total_requests || 0
+              } requests`,
+              data,
+              true
+            );
+          } else {
+            showResult(`❌ Generate Failed`, data, false);
+          }
+        } catch (error) {
+          console.error("Generate error:", error);
+          showResult(
+            "❌ Generate Network Error",
+            { error: error.message },
+            false
+          );
+        }
+      }
+
+      async function testView() {
+        const date = document.getElementById("test-date").value;
+        console.log("Testing view for:", date);
+
+        try {
+          const response = await fetch(
+            `../backend/api/smart_scheduling.php?action=view&date=${date}`
+          );
+          const data = await response.json();
+
+          console.log("View response:", data);
+
+          if (data.success) {
+            showResult(
+              `✅ View Success - ${data.schedules.length} schedules found`,
+              data,
+              true
+            );
+          } else {
+            showResult(`❌ View Failed`, data, false);
+          }
+        } catch (error) {
+          console.error("View error:", error);
+          showResult("❌ View Network Error", { error: error.message }, false);
+        }
+      }
+
+      // Auto-test on load
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("Production test page loaded");
+      });
+    </script>
+  </body>
+</html>

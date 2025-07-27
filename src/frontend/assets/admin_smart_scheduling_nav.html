@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quick Navigation to Admin Smart Scheduling</title>
+  </head>
+  <body>
+    <h1>🔗 Quick Links for Admin Smart Scheduling</h1>
+
+    <h2>Step 1: Login</h2>
+    <a href="quick_login.php" target="_blank">👤 Quick Admin Login</a>
+
+    <h2>Step 2: Test Pages</h2>
+    <a href="admin_smart_scheduling.php" target="_blank"
+      >🎯 Main Admin Smart Scheduling (Production)</a
+    ><br /><br />
+    <a href="admin_smart_scheduling_debug.php" target="_blank"
+      >🔧 Debug Admin Smart Scheduling (Working Version)</a
+    ><br /><br />
+    <a href="production_scheduling_test.html" target="_blank"
+      >🧪 Simple API Test Page</a
+    ><br /><br />
+
+    <h2>Step 3: API Direct Tests</h2>
+    <a
+      href="../../backend/api/smart_scheduling.php?action=view&date=2025-07-27"
+      target="_blank"
+      >👁️ Test View API</a
+    ><br /><br />
+    <a
+      href="../../backend/api/smart_scheduling.php?action=generate&date=2025-07-27"
+      target="_blank"
+      >🚀 Test Generate API</a
+    ><br /><br />
+
+    <h2>Debug Tools</h2>
+    <a href="debug_center.html" target="_blank">🔧 Debug Center</a><br /><br />
+
+    <script>
+      // Auto-open quick login in 2 seconds if not already logged in
+      setTimeout(() => {
+        // Check if we can access admin page
+        fetch("admin_smart_scheduling.php")
+          .then((response) => {
+            if (response.redirected && response.url.includes("login.php")) {
+              console.log("Not logged in, opening quick login...");
+              window.open("quick_login.php", "_blank");
+            } else {
+              console.log("Already logged in or no redirect");
+            }
+          })
+          .catch((e) => console.log("Could not check login status:", e));
+      }, 1000);
+    </script>
+  </body>
+</html>

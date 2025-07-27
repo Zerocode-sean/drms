@@ -2,6 +2,8 @@
 // Include performance optimizations
 require_once __DIR__ . '/../../backend/config/performance.php';
 require_once __DIR__ . '/../../backend/config/session.php';
+// Include asset helper for environment-aware paths
+require_once __DIR__ . '/../../backend/config/asset_helper.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'driver') {
     header('Location: login.php');
@@ -22,8 +24,8 @@ if ($_SESSION['role'] === 'admin') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Driver Dashboard - DRMS</title>
-    <link rel="stylesheet" href="/src/frontend/css/drm-styles.css">
-    <link rel="icon" href="/src/frontend/images/logo.png">
+    <link rel="stylesheet" href="<?php echo cssPath('drm-styles.css'); ?>">
+    <link rel="icon" href="<?php echo logoPath(); ?>">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
@@ -562,7 +564,7 @@ if ($_SESSION['role'] === 'admin') {
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <img src="/src/frontend/images/logo.png" alt="DRMS Logo" class="logo-img">
+                <img src="<?php echo logoPath(); ?>" alt="DRMS Logo" class="logo-img">
                 <h2>DRMS</h2>
             </div>
             <ul class="nav-menu">
@@ -625,7 +627,7 @@ if ($_SESSION['role'] === 'admin') {
         </div>
     </div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="/src/frontend/js/driver.js"></script>
+    <script src="<?php echo jsPath('driver.js'); ?>"></script>
     <script>
     function confirmLogout() {
         if (confirm('Are you sure you want to logout?')) {
