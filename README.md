@@ -206,7 +206,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Documentation**: Check the `/docs` folder
 - **Issues**: Open a GitHub issue
-- **Email**: [your-email@example.com]
+- **Email**: [ndindajohn22@gmail.com]
 
 ## 🎉 Acknowledgments
 
