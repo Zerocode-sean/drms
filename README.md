@@ -1,4 +1,4 @@
-# 🚛 DRMS - Driver Request Management System
+# 🚛 DRMS - Digital  Request Waste Management System
 
 A comprehensive waste collection management platform with smart scheduling, SMS notifications, and real-time tracking.
 
